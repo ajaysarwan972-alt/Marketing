@@ -101,13 +101,11 @@ alert("Wrong Mobile or Password ❌");
 return;
 }
 
-// SAVE USER
+// ✅ LOCAL STORAGE SAVE (IMPORTANT)
 localStorage.setItem("user", JSON.stringify(data));
 
 alert("Login Success ✅");
-
-// 🔥 FIXED REDIRECT
-location.href="dealerhome.html";
+location.href="home.html";
 }
 
 // SIGNUP
@@ -123,6 +121,7 @@ alert("Sab fill kar");
 return;
 }
 
+// 🔥 REF CODE = mobile use kar rahe
 let ref_code = mobile;
 
 let {error} = await client
