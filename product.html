@@ -3,15 +3,78 @@
 <head>
 <title>Product Detail</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f5f6fa;
+}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  background:white;
+  min-height:100vh;
+}
+
+/* 🔥 IMAGE STYLE */
+.product-img{
+  width:100%;
+  height:280px;
+  object-fit:cover;
+  border-bottom:1px solid #eee;
+}
+
+/* DETAILS */
+.details{
+  padding:15px;
+}
+
+h2{
+  font-size:22px;
+  margin:10px 0;
+}
+
+.price{
+  font-size:20px;
+  color:green;
+  font-weight:bold;
+}
+
+.desc{
+  font-size:15px;
+  color:#555;
+  line-height:1.5;
+  margin-top:10px;
+}
+
+/* BUTTON */
+button{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  padding:15px;
+  background:green;
+  color:white;
+  font-size:18px;
+  border:none;
+}
+</style>
+
 </head>
 
 <body>
 
-<div id="product"></div>
+<div class="container">
+
+  <div id="product"></div>
+
+</div>
 
 <!-- BUY BUTTON -->
-<button onclick="sendWhatsApp()"
-style="margin:20px;padding:12px;background:green;color:white;width:90%;">
+<button onclick="sendWhatsApp()">
   Buy on WhatsApp
 </button>
 
@@ -24,7 +87,6 @@ const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 let id = new URLSearchParams(window.location.search).get("id");
 
-// 🔥 product data store yaha hoga
 let productData = {};
 
 // ================= LOAD PRODUCT =================
@@ -44,11 +106,14 @@ async function loadProduct(){
   productData = data;
 
   document.getElementById("product").innerHTML = `
-    <img src="${data.image}" style="width:100%;">
-    <h2>${data.name}</h2>
-    <h3>₹${data.price}</h3>
-    <p>${data.description || ""}</p>
-    <p>Category: ${data.category || "N/A"}</p>
+    <img class="product-img" src="${data.image}">
+
+    <div class="details">
+      <h2>${data.name}</h2>
+      <div class="price">₹${data.price}</div>
+      <p class="desc">${data.description || "No description available"}</p>
+      <p><b>Category:</b> ${data.category || "N/A"}</p>
+    </div>
   `;
 }
 
@@ -58,7 +123,6 @@ loadProduct();
 // ================= WHATSAPP ORDER =================
 function sendWhatsApp(){
 
-  // 🔥 IMPORTANT: dealer ka number database se aayega
   let dealerNumber = productData.whatsapp;
 
   if(!dealerNumber){
