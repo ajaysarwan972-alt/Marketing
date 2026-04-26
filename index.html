@@ -46,6 +46,7 @@
 <div id="products" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;"></div>
 
 <script>
+
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
 const client = supabase.createClient(supabaseUrl, supabaseKey);
@@ -61,6 +62,7 @@ function openProduct(id){
 
 // Load products
 async function loadProducts(){
+
   let { data } = await client.from("products").select("*");
 
   let box = document.getElementById("products");
@@ -72,8 +74,9 @@ async function loadProducts(){
 
         <img src="${p.image}" style="
           width:100%;
-          height:140px;
-          object-fit:cover;
+          height:120px;
+          object-fit:contain;
+          background:#f5f5f5;
           border-radius:10px;
         ">
 
@@ -83,9 +86,11 @@ async function loadProducts(){
       </div>
     `;
   });
+
 }
 
 loadProducts();
+
 </script>
 
 </body>
