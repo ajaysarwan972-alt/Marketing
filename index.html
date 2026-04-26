@@ -1,143 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bhola Shop</title>
-
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#f4f4f4;
-}
-
-/* TOP BAR */
-.header{
-  background:#ff3f6c;
-  color:white;
-  padding:12px;
-  display:flex;
-  align-items:center;
-}
-
-.menu{
-  font-size:26px;
-  cursor:pointer;
-}
-
-/* SIDE MENU */
-.side{
-  position:fixed;
-  top:0;
-  left:-260px;
-  width:260px;
-  height:100%;
-  background:#111;
-  color:#fff;
-  transition:0.3s;
-  padding-top:60px;
-}
-
-.side a{
-  display:block;
-  padding:12px;
-  color:#fff;
-  text-decoration:none;
-  border-bottom:1px solid #333;
-}
-
-.side a:hover{
-  background:#ff3f6c;
-}
-
-/* OVERLAY */
-.overlay{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.5);
-  display:none;
-}
-
-/* HERO */
-.hero{
-  background:white;
-  margin:10px;
-  padding:15px;
-  border-radius:10px;
-  text-align:center;
-}
-
-/* CATEGORY */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  padding:10px;
-}
-
-.box{
-  background:white;
-  padding:25px;
-  text-align:center;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.box:active{
-  transform:scale(0.97);
-}
-</style>
+<title>Home</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 
 <body>
 
-<div class="header">
-  <div class="menu" onclick="openMenu()">☰</div>
-  <h3 style="margin-left:15px;">Bhola Shop</h3>
+<!-- Top Bar -->
+<div style="display:flex;justify-content:space-between;padding:10px;background:#fff;">
+  <h3>MiniStore</h3>
+
+  <a href="login.html">
+    <button>Dealer Login</button>
+  </a>
 </div>
 
-<!-- SIDE MENU -->
-<div class="side" id="side">
-  <a href="index.html">Home</a>
-  <a href="game.html">Jodi</a>
-  <a href="harf.html">Harf</a>
-  <a href="crossing.html">Crossing</a>
-  <a href="copypast.html">Copy Paste</a>
+<!-- Banner -->
+<div id="banner" style="background:orange;color:white;padding:15px;margin:10px;">
+  Loading banner...
 </div>
 
-<!-- OVERLAY -->
-<div class="overlay" id="overlay" onclick="closeMenu()"></div>
-
-<div class="hero">
-  <h2>🛒 Bhola Shop</h2>
-  <p>Cash on Delivery Available</p>
+<!-- Categories -->
+<h4 style="margin-left:10px;">Categories</h4>
+<div style="display:flex;gap:10px;overflow-x:auto;padding:10px;">
+  <div>👕 Clothes</div>
+  <div>👟 Shoes</div>
+  <div>📱 Mobile</div>
+  <div>👜 Bags</div>
 </div>
 
-<div class="grid">
-  <div class="box" onclick="go('mobile.html')">📱 Mobile</div>
-  <div class="box" onclick="go('clothes.html')">👕 Clothes</div>
-  <div class="box" onclick="go('electronics.html')">💻 Electronics</div>
-  <div class="box" onclick="go('grocery.html')">🛒 Grocery</div>
+<!-- Products -->
+<h4 style="margin-left:10px;">Products</h4>
+<div id="products" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;">
 </div>
 
 <script>
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+const supabaseKey = "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
+const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-function openMenu(){
-  document.getElementById("side").style.left="0";
-  document.getElementById("overlay").style.display="block";
+// ---------- BANNER ----------
+let bannerText = localStorage.getItem("banner");
+document.getElementById("banner").innerText = bannerText || "Big Sale Today 🔥";
+
+// ---------- PRODUCTS FROM SUPABASE ----------
+async function loadProducts(){
+  let { data, error } = await client
+    .from("products")
+    .select("*");
+
+  let box = document.getElementById("products");
+  box.innerHTML = "";
+
+  data.forEach(p => {
+    box.innerHTML += `
+      <div style="background:#fff;padding:10px;border-radius:10px;">
+        <img src="${p.image}" style="width:100%;border-radius:10px;">
+        <h4>${p.name}</h4>
+        <b>₹${p.price}</b>
+      </div>
+    `;
+  });
 }
 
-function closeMenu(){
-  document.getElementById("side").style.left="-260px";
-  document.getElementById("overlay").style.display="none";
-}
-
-function go(page){
-  window.location.href = page;
-}
-
+loadProducts();
 </script>
 
 </body>
