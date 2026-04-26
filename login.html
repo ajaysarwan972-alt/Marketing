@@ -45,6 +45,7 @@ border:none;
 background:#f2f2f2;
 border-radius:12px;
 font-size:16px;
+outline:none;
 }
 
 button{
@@ -120,7 +121,7 @@ alert("Fill all fields");
 return;
 }
 
-// 🔥 SAFE QUERY (no .single)
+// fetch dealer
 let { data, error } = await supabase
 .from("dealers")
 .select("*")
@@ -137,12 +138,12 @@ alert("Wrong login details");
 return;
 }
 
-// save dealer info
+// save session
 localStorage.setItem("dealer", JSON.stringify(data[0]));
 
 alert("Login Success");
 
-// 🔥 REDIRECT TO DEALER HOME
+// 🔥 redirect
 window.location.href = "dealerhome.html";
 
 }
