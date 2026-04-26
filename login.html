@@ -1,151 +1,194 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Dealer Login</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login / Signup</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
-
 body{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:linear-gradient(135deg,#2196f3,#00d4ff);
-}
-
-.box{
-width:95%;
-max-width:380px;
-background:white;
-padding:30px 25px;
-border-radius:25px;
-box-shadow:0 10px 35px rgba(0,0,0,.25);
-}
-
-h2{
-text-align:center;
-margin-bottom:25px;
-color:#2196f3;
-}
-
-input{
-width:100%;
-padding:15px;
-margin:12px 0;
-border:none;
+margin:0;
+font-family:Arial;
 background:#f2f2f2;
-border-radius:12px;
-font-size:16px;
-outline:none;
+text-align:center;
 }
 
-button{
-width:100%;
+.top{
+background:#ff0000;
+height:40px;
+}
+
+.container{
+max-width:400px;
+margin:auto;
+padding:20px;
+}
+
+h1{
+color:#ff0000;
+margin-top:20px;
+}
+
+.input{
+width:90%;
+margin:10px 0;
 padding:15px;
 border:none;
-border-radius:12px;
-font-size:17px;
+border-radius:20px;
+box-shadow:0 2px 8px rgba(0,0,0,0.2);
+font-size:16px;
+}
+
+.btn{
+width:90%;
+padding:15px;
+border:none;
+border-radius:25px;
+background:#ff0000;
+color:#fff;
+font-size:18px;
 font-weight:bold;
+margin-top:10px;
 cursor:pointer;
 }
 
-.loginbtn{
-background:#2196f3;
-color:white;
-margin-top:10px;
+.blueBtn{
+background:#3498db;
 }
 
-.signupbtn{
-background:#10b981;
-color:white;
-margin-top:15px;
+.page{
+display:none;
 }
 
-p{
-text-align:center;
-margin-top:18px;
-color:#777;
+.active{
+display:block;
 }
 </style>
+
 </head>
 
 <body>
 
-<div class="box">
+<div class="top"></div>
 
-<h2>Dealer Login</h2>
+<div class="container">
 
-<input type="text" id="mobile" placeholder="Mobile Number">
-<input type="password" id="password" placeholder="Password">
+<!-- LOGIN -->
+<div id="loginPage" class="page active">
 
-<button class="loginbtn" onclick="login()">
-Login
+<h1>LOGIN</h1>
+
+<input id="loginMobile" class="input" placeholder="Mobile Number">
+<input id="loginPassword" type="password" class="input" placeholder="Password">
+
+<button class="btn" onclick="login()">LOGIN</button>
+
+<p>New user?</p>
+<button class="btn blueBtn" onclick="showPage('signupPage')">
+Create Account
 </button>
 
-<button class="signupbtn"
-onclick="window.location.href='signup.html'">
-Create New Account
+</div>
+
+<!-- SIGNUP -->
+<div id="signupPage" class="page">
+
+<h1>SIGNUP</h1>
+
+<input id="name" class="input" placeholder="Full Name">
+<input id="mobile" class="input" placeholder="Mobile Number">
+<input id="password" type="password" class="input" placeholder="Password">
+
+<button class="btn" onclick="signup()">REGISTER</button>
+
+<p>Already user?</p>
+<button class="btn blueBtn" onclick="showPage('loginPage')">
+Back to Login
 </button>
 
-<p>Dealer Panel Secure Access</p>
+</div>
 
 </div>
 
 <script>
 
-const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
-
-const supabase = window.supabase.createClient(
-supabaseUrl,
-supabaseKey
+// SUPABASE
+const client = supabase.createClient(
+"https://katbdbzoufiblnnsoxkk.supabase.co",
+"sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a"
 );
 
-// ================= LOGIN =================
+// AUTO LOGIN
+if(localStorage.getItem("user")){
+location.href="dealerhome.html";
+}
+
+// PAGE SWITCH
+function showPage(id){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
+
+// LOGIN
 async function login(){
 
-let mobile = document.getElementById("mobile").value.trim();
-let password = document.getElementById("password").value.trim();
+let mobile = document.getElementById("loginMobile").value.trim();
+let password = document.getElementById("loginPassword").value.trim();
 
 if(!mobile || !password){
 alert("Fill all fields");
 return;
 }
 
-// fetch dealer
-let { data, error } = await supabase
-.from("dealers")
+let {data,error} = await client
+.from("login")
 .select("*")
-.eq("mobile", mobile)
-.eq("password", password);
+.eq("mobile",mobile)
+.eq("password",password)
+.single();
+
+if(error || !data){
+alert("Wrong Mobile or Password ❌");
+return;
+}
+
+localStorage.setItem("user", JSON.stringify(data));
+
+alert("Login Success ✅");
+
+location.href="dealerhome.html";
+}
+
+// SIGNUP
+async function signup(){
+
+let name = document.getElementById("name").value.trim();
+let mobile = document.getElementById("mobile").value.trim();
+let password = document.getElementById("password").value.trim();
+
+if(!name || !mobile || !password){
+alert("Fill all fields");
+return;
+}
+
+let {error} = await client
+.from("login")
+.insert([{
+name:name,
+mobile:mobile,
+password:password,
+balance:0
+}]);
 
 if(error){
-alert("Server error");
+alert("Signup Failed ❌");
 return;
 }
 
-if(!data || data.length === 0){
-alert("Wrong login details");
-return;
-}
-
-// save session
-localStorage.setItem("dealer", JSON.stringify(data[0]));
-
-alert("Login Success");
-
-// 🔥 redirect
-window.location.href = "dealerhome.html";
-
+alert("Signup Success ✅");
+showPage('loginPage');
 }
 
 </script>
