@@ -1,49 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shop Home</title>
+<title>Marketplace Home</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 body{
 margin:0;
-font-family:Arial;
+font-family:Arial,sans-serif;
 background:#f5f5f5;
 }
 
 .header{
-background:white;
+background:#fff;
 padding:15px;
 position:sticky;
 top:0;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
 z-index:99;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
 
 .search{
 width:100%;
+box-sizing:border-box;
 padding:14px;
-border-radius:30px;
 border:1px solid #ddd;
+border-radius:30px;
 font-size:16px;
 }
 
-.dealer{
-background:green;
+.dealer-btn{
+display:block;
+width:220px;
+margin:12px auto 0;
+background:#0a9d2f;
 color:white;
-padding:10px 25px;
-display:inline-block;
-margin-top:12px;
-border-radius:25px;
 text-decoration:none;
+text-align:center;
+padding:12px;
 font-weight:bold;
+border-radius:30px;
 }
 
 .banner{
 margin:15px;
+padding:30px;
+border-radius:20px;
 background:linear-gradient(45deg,#ff4da6,#ff9800);
 color:white;
-padding:35px 20px;
-border-radius:20px;
 text-align:center;
 font-size:28px;
 font-weight:bold;
@@ -52,14 +59,16 @@ font-weight:bold;
 .notice{
 margin:15px;
 background:#fff8dc;
-padding:15px;
-border-radius:15px;
 border:2px solid orange;
-font-weight:bold;
+padding:18px;
+border-radius:15px;
 text-align:center;
+font-weight:bold;
+line-height:30px;
+color:#c85c00;
 }
 
-.section-title{
+.title{
 font-size:24px;
 font-weight:bold;
 padding:15px;
@@ -68,20 +77,23 @@ padding:15px;
 .cats{
 display:grid;
 grid-template-columns:repeat(4,1fr);
-gap:15px;
+gap:12px;
 padding:15px;
-text-align:center;
 }
 
 .cat{
-background:white;
-padding:15px 5px;
-border-radius:20px;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
+background:#fff;
+padding:15px 8px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+font-weight:bold;
 }
 
-.icon{
-font-size:35px;
+.cat span{
+display:block;
+font-size:30px;
+margin-bottom:8px;
 }
 
 .products{
@@ -92,50 +104,62 @@ padding:15px;
 }
 
 .card{
-background:white;
+background:#fff;
 border-radius:18px;
 overflow:hidden;
 box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
 
 .pimg{
-height:160px;
-background:#ddd;
-font-size:55px;
+height:170px;
+background:#eee;
 display:flex;
 align-items:center;
 justify-content:center;
+overflow:hidden;
+}
+
+.pimg img{
+width:100%;
+height:100%;
+object-fit:cover;
 }
 
 .info{
 padding:12px;
 }
 
+.name{
+font-size:18px;
+font-weight:bold;
+}
+
 .price{
+margin-top:8px;
+font-size:22px;
 color:#e91e63;
-font-size:20px;
 font-weight:bold;
 }
 
 .cod{
-background:#e8fff0;
-color:green;
-padding:6px 10px;
 display:inline-block;
-border-radius:20px;
 margin-top:8px;
+background:#eafbea;
+color:green;
+padding:6px 12px;
+border-radius:20px;
 font-size:13px;
 }
 
 .buy{
 display:block;
+margin-top:12px;
 background:#ff4da6;
-color:white;
+color:#fff;
+text-decoration:none;
 text-align:center;
 padding:10px;
-margin-top:12px;
 border-radius:25px;
-text-decoration:none;
 font-weight:bold;
 }
 </style>
@@ -143,84 +167,119 @@ font-weight:bold;
 <body>
 
 <div class="header">
+
 <input class="search" placeholder="Search Products">
-<br>
-<center>
-<a href="dealerlogin.html" class="dealer">Dealer Login</a>
-</center>
+
+<a href="login.html" class="dealer-btn">
+Dealer Login
+</a>
+
 </div>
 
 <div class="banner">
-Big Sale 50% OFF
+BIG SALE
 </div>
 
 <div class="notice">
-Only Cash On Delivery Accept <br>
-Product receive ke baad hi payment dein
+ONLY CASH ON DELIVERY ACCEPT <br>
+किसी को भी payment पहले ना दें <br>
+Product received के बाद ही payment दें
 </div>
 
-<div class="section-title">
-Shop By Category
+<div class="title">
+Categories
 </div>
 
 <div class="cats">
-<div class="cat"><div class="icon">👗</div>Fashion</div>
-<div class="cat"><div class="icon">📱</div>Mobiles</div>
-<div class="cat"><div class="icon">💄</div>Beauty</div>
-<div class="cat"><div class="icon">🏠</div>Home</div>
-<div class="cat"><div class="icon">🛋</div>Furniture</div>
-<div class="cat"><div class="icon">🚲</div>Bikes</div>
-<div class="cat"><div class="icon">🐄</div>Animals</div>
-<div class="cat"><div class="icon">📦</div>More</div>
+<div class="cat"><span>👗</span>Fashion</div>
+<div class="cat"><span>📱</span>Mobile</div>
+<div class="cat"><span>💄</span>Beauty</div>
+<div class="cat"><span>🏠</span>Home</div>
+<div class="cat"><span>🛋</span>Furniture</div>
+<div class="cat"><span>🚲</span>Bike</div>
+<div class="cat"><span>🐄</span>Animals</div>
+<div class="cat"><span>📦</span>More</div>
 </div>
 
-<div class="section-title">
-Trending Products
+<div class="title">
+Latest Products
 </div>
 
-<div class="products">
+<div class="products" id="products">
+Loading Products...
+</div>
 
+
+<script>
+const supabaseUrl="YOUR_SUPABASE_URL";
+const supabaseKey="YOUR_SUPABASE_ANON_KEY";
+
+const supabase=window.supabase.createClient(
+supabaseUrl,
+supabaseKey
+);
+
+async function loadProducts(){
+
+const {data,error}=await supabase
+.from("products")
+.select("*")
+.order("id",{ascending:false});
+
+if(error){
+document.getElementById("products").innerHTML=
+"Products load failed";
+return;
+}
+
+if(!data || data.length===0){
+document.getElementById("products").innerHTML=
+"No Products Available";
+return;
+}
+
+let html="";
+
+data.forEach(p=>{
+
+html+=`
 <div class="card">
-<div class="pimg">👟</div>
-<div class="info">
-Mens Shoes<br>
-<div class="price">₹599</div>
-<div class="cod">Cash On Delivery</div>
-<a href="#" class="buy">Buy Now</a>
-</div>
+
+<div class="pimg">
+<img src="${p.image || 'https://via.placeholder.com/300'}">
 </div>
 
-<div class="card">
-<div class="pimg">📱</div>
 <div class="info">
-Smart Phone<br>
-<div class="price">₹6999</div>
-<div class="cod">Cash On Delivery</div>
-<a href="#" class="buy">Buy Now</a>
-</div>
+
+<div class="name">
+${p.product_name}
 </div>
 
-<div class="card">
-<div class="pimg">⌚</div>
-<div class="info">
-Smart Watch<br>
-<div class="price">₹799</div>
-<div class="cod">Cash On Delivery</div>
-<a href="#" class="buy">Buy Now</a>
-</div>
+<div class="price">
+₹${p.price}
 </div>
 
-<div class="card">
-<div class="pimg">👕</div>
-<div class="info">
-T-Shirt<br>
-<div class="price">₹299</div>
-<div class="cod">Cash On Delivery</div>
-<a href="#" class="buy">Buy Now</a>
-</div>
+<div class="cod">
+Cash On Delivery
 </div>
 
+<a class="buy"
+href="https://wa.me/${p.whatsapp}?text=I want to order ${p.product_name}">
+Order Now
+</a>
+
 </div>
+</div>
+`;
+
+});
+
+document.getElementById("products").innerHTML=html;
+
+}
+
+loadProducts();
+</script>
 
 </body>
 </html>
