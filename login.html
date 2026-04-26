@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dealer Login</title>
+</head>
+<body>
+
+<h2>Dealer Login</h2>
+
+<input id="mobile" placeholder="Mobile"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
+
+<button onclick="login()">Login</button>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient(
+  "https://katbdbzoufiblnnsoxkk.supabase.co",
+  "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a"
+);
+
+window.login = async () => {
+  const mobile = document.getElementById("mobile").value;
+  const password = document.getElementById("password").value;
+
+  const { data, error } = await supabase
+    .from("dealers")
+    .select("*")
+    .eq("mobile", mobile)
+    .eq("password", password);
+
+  if (error) {
+    alert("Error: " + error.message);
+    return;
+  }
+
+  if (data.length > 0) {
+    localStorage.setItem("dealer", JSON.stringify(data[0]));
+    alert("Login Success");
+  } else {
+    alert("Wrong mobile or password");
+  }
+};
+</script>
+
+</body>
+</html>
