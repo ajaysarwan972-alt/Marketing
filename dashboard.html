@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Add Product</h2>
+
+<input id="name" placeholder="Name"><br><br>
+<input id="price" placeholder="Price"><br><br>
+<input id="whatsapp" placeholder="WhatsApp"><br><br>
+
+<button onclick="add()">Add Product</button>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient(
+  "https://katbdbzoufiblnnsoxkk.supabase.co",
+  "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a"
+);
+
+window.add = async ()=>{
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const whatsapp = document.getElementById("whatsapp").value;
+
+  const { error } = await supabase.from("products").insert([
+    { name, price, whatsapp }
+  ]);
+
+  if(error){
+    alert(error.message);
+  } else {
+    alert("Product Added");
+  }
+}
+</script>
+
+</body>
+</html>
