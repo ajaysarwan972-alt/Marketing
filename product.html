@@ -18,12 +18,12 @@ body{
   min-height:100vh;
 }
 
-/* 🔥 IMAGE STYLE */
+/* 🔥 IMAGE FIX */
 .product-img{
   width:100%;
-  height:280px;
-  object-fit:cover;
-  border-bottom:1px solid #eee;
+  height:260px;
+  object-fit:contain;
+  background:#fff;
 }
 
 /* DETAILS */
@@ -32,24 +32,26 @@ body{
 }
 
 h2{
-  font-size:22px;
+  font-size:20px;
   margin:10px 0;
+  color:#222;
 }
 
 .price{
-  font-size:20px;
+  font-size:22px;
   color:green;
   font-weight:bold;
+  margin:10px 0;
 }
 
 .desc{
   font-size:15px;
   color:#555;
-  line-height:1.5;
+  line-height:1.6;
   margin-top:10px;
 }
 
-/* BUTTON */
+/* BUY BUTTON */
 button{
   position:fixed;
   bottom:0;
@@ -98,7 +100,7 @@ async function loadProduct(){
     .eq("id", id)
     .single();
 
-  if(error){
+  if(error || !data){
     document.getElementById("product").innerHTML = "Product not found";
     return;
   }
@@ -110,9 +112,16 @@ async function loadProduct(){
 
     <div class="details">
       <h2>${data.name}</h2>
+
       <div class="price">₹${data.price}</div>
-      <p class="desc">${data.description || "No description available"}</p>
-      <p><b>Category:</b> ${data.category || "N/A"}</p>
+
+      <p class="desc">
+        ${data.description || "No description available"}
+      </p>
+
+      <p style="margin-top:10px;color:#666;">
+        <b>Category:</b> ${data.category || "N/A"}
+      </p>
     </div>
   `;
 }
