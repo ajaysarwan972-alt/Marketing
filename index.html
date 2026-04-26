@@ -1,108 +1,224 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>User Home</title>
-
+<title>Shop Home</title>
 <style>
 body{
 margin:0;
 font-family:Arial;
 background:#f5f5f5;
-text-align:center;
 }
 
-.top{
-background:#fff;
+.header{
+background:white;
 padding:15px;
+position:sticky;
+top:0;
 box-shadow:0 2px 8px rgba(0,0,0,.1);
+z-index:99;
 }
 
-.login-btn{
-background:#008000;
-color:#fff;
-padding:12px 25px;
-border:none;
+.search{
+width:100%;
+padding:14px;
 border-radius:30px;
-font-size:18px;
+border:1px solid #ddd;
+font-size:16px;
+}
+
+.dealer{
+background:green;
+color:white;
+padding:10px 25px;
+display:inline-block;
+margin-top:12px;
+border-radius:25px;
+text-decoration:none;
+font-weight:bold;
+}
+
+.banner{
+margin:15px;
+background:linear-gradient(45deg,#ff4da6,#ff9800);
+color:white;
+padding:35px 20px;
+border-radius:20px;
+text-align:center;
+font-size:28px;
 font-weight:bold;
 }
 
 .notice{
-margin:20px;
-background:#fff3cd;
-border:2px solid #ff9800;
-padding:18px;
-border-radius:12px;
-font-size:18px;
+margin:15px;
+background:#fff8dc;
+padding:15px;
+border-radius:15px;
+border:2px solid orange;
 font-weight:bold;
-color:#d35400;
-line-height:30px;
+text-align:center;
 }
 
-h2{
-margin-top:25px;
+.section-title{
+font-size:24px;
+font-weight:bold;
+padding:15px;
 }
 
-.category{
+.cats{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+padding:15px;
+text-align:center;
+}
+
+.cat{
+background:white;
+padding:15px 5px;
+border-radius:20px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.icon{
+font-size:35px;
+}
+
+.products{
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:15px;
-padding:20px;
+padding:15px;
 }
 
-.cat-btn{
-background:#ffffff;
-padding:35px 10px;
-border-radius:15px;
+.card{
+background:white;
+border-radius:18px;
+overflow:hidden;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.pimg{
+height:160px;
+background:#ddd;
+font-size:55px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.info{
+padding:12px;
+}
+
+.price{
+color:#e91e63;
 font-size:20px;
 font-weight:bold;
-box-shadow:0 3px 10px rgba(0,0,0,.1);
-text-decoration:none;
-color:#000;
 }
 
-.cat-btn:hover{
-background:#eaf7ff;
+.cod{
+background:#e8fff0;
+color:green;
+padding:6px 10px;
+display:inline-block;
+border-radius:20px;
+margin-top:8px;
+font-size:13px;
+}
+
+.buy{
+display:block;
+background:#ff4da6;
+color:white;
+text-align:center;
+padding:10px;
+margin-top:12px;
+border-radius:25px;
+text-decoration:none;
+font-weight:bold;
 }
 </style>
 </head>
 <body>
 
-<div class="top">
-<a href="dealerlogin.html">
-<button class="login-btn">
-Dealer Login
-</button>
-</a>
+<div class="header">
+<input class="search" placeholder="Search Products">
+<br>
+<center>
+<a href="dealerlogin.html" class="dealer">Dealer Login</a>
+</center>
+</div>
+
+<div class="banner">
+Big Sale 50% OFF
 </div>
 
 <div class="notice">
-⚠ ONLY CASH ON DELIVERY ACCEPT <br><br>
-किसी को भी payment पहले ना दें <br>
-Product received के बाद ही payment दें
+Only Cash On Delivery Accept <br>
+Product receive ke baad hi payment dein
 </div>
 
-<h2>Categories</h2>
+<div class="section-title">
+Shop By Category
+</div>
 
-<div class="category">
+<div class="cats">
+<div class="cat"><div class="icon">👗</div>Fashion</div>
+<div class="cat"><div class="icon">📱</div>Mobiles</div>
+<div class="cat"><div class="icon">💄</div>Beauty</div>
+<div class="cat"><div class="icon">🏠</div>Home</div>
+<div class="cat"><div class="icon">🛋</div>Furniture</div>
+<div class="cat"><div class="icon">🚲</div>Bikes</div>
+<div class="cat"><div class="icon">🐄</div>Animals</div>
+<div class="cat"><div class="icon">📦</div>More</div>
+</div>
 
-<a href="#" class="cat-btn">📱 Mobiles</a>
+<div class="section-title">
+Trending Products
+</div>
 
-<a href="#" class="cat-btn">👕 Fashion</a>
+<div class="products">
 
-<a href="#" class="cat-btn">🏠 Home Items</a>
+<div class="card">
+<div class="pimg">👟</div>
+<div class="info">
+Mens Shoes<br>
+<div class="price">₹599</div>
+<div class="cod">Cash On Delivery</div>
+<a href="#" class="buy">Buy Now</a>
+</div>
+</div>
 
-<a href="#" class="cat-btn">🚲 Bikes</a>
+<div class="card">
+<div class="pimg">📱</div>
+<div class="info">
+Smart Phone<br>
+<div class="price">₹6999</div>
+<div class="cod">Cash On Delivery</div>
+<a href="#" class="buy">Buy Now</a>
+</div>
+</div>
 
-<a href="#" class="cat-btn">💻 Electronics</a>
+<div class="card">
+<div class="pimg">⌚</div>
+<div class="info">
+Smart Watch<br>
+<div class="price">₹799</div>
+<div class="cod">Cash On Delivery</div>
+<a href="#" class="buy">Buy Now</a>
+</div>
+</div>
 
-<a href="#" class="cat-btn">🛋 Furniture</a>
-
-<a href="#" class="cat-btn">🐄 Animals</a>
-
-<a href="#" class="cat-btn">📦 More</a>
+<div class="card">
+<div class="pimg">👕</div>
+<div class="info">
+T-Shirt<br>
+<div class="price">₹299</div>
+<div class="cod">Cash On Delivery</div>
+<a href="#" class="buy">Buy Now</a>
+</div>
+</div>
 
 </div>
 
