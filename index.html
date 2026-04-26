@@ -1,27 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Home</title>
+<title>Mini Store</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 
 <body>
 
-<!-- Top Bar -->
+<!-- TOP BAR -->
 <div style="display:flex;justify-content:space-between;padding:10px;background:#fff;">
   <h3>MiniStore</h3>
-
-  <a href="login.html">
-    <button>Dealer Login</button>
-  </a>
+  <a href="login.html"><button>Dealer Login</button></a>
 </div>
 
-<!-- Banner -->
+<!-- BANNER -->
 <div id="banner" style="background:orange;color:white;padding:15px;margin:10px;">
-  Loading banner...
+  Loading...
 </div>
 
-<!-- Categories -->
+<!-- CATEGORIES -->
 <h4 style="margin-left:10px;">Categories</h4>
 <div style="display:flex;gap:10px;overflow-x:auto;padding:10px;">
   <div>👕 Clothes</div>
@@ -30,32 +27,34 @@
   <div>👜 Bags</div>
 </div>
 
-<!-- Products -->
+<!-- PRODUCTS -->
 <h4 style="margin-left:10px;">Products</h4>
-<div id="products" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;">
-</div>
+<div id="products" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;"></div>
 
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-// ---------- BANNER ----------
-let bannerText = localStorage.getItem("banner");
-document.getElementById("banner").innerText = bannerText || "Big Sale Today 🔥";
+// Banner
+document.getElementById("banner").innerText =
+localStorage.getItem("banner") || "🔥 Big Sale Today";
 
-// ---------- PRODUCTS FROM SUPABASE ----------
+// Open product
+function openProduct(id){
+  window.location.href = "product.html?id=" + id;
+}
+
+// Load products
 async function loadProducts(){
-  let { data, error } = await client
-    .from("products")
-    .select("*");
+  let { data } = await client.from("products").select("*");
 
   let box = document.getElementById("products");
   box.innerHTML = "";
 
   data.forEach(p => {
     box.innerHTML += `
-      <div style="background:#fff;padding:10px;border-radius:10px;">
+      <div onclick="openProduct('${p.id}')" style="cursor:pointer;background:#fff;padding:10px;border-radius:10px;">
         <img src="${p.image}" style="width:100%;border-radius:10px;">
         <h4>${p.name}</h4>
         <b>₹${p.price}</b>
