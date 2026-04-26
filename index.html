@@ -1,127 +1,110 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My Market</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>User Home</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: #f5f5f5;
-    }
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#f5f5f5;
+text-align:center;
+}
 
-    .notice {
-      background: linear-gradient(90deg, red, orange);
-      color: white;
-      padding: 10px;
-      text-align: center;
-      font-weight: bold;
-    }
+.top{
+background:#fff;
+padding:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      padding: 15px;
-      background: #111;
-      color: white;
-    }
+.login-btn{
+background:#008000;
+color:#fff;
+padding:12px 25px;
+border:none;
+border-radius:30px;
+font-size:18px;
+font-weight:bold;
+}
 
-    .btn {
-      background: orange;
-      padding: 8px 15px;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
-    }
+.notice{
+margin:20px;
+background:#fff3cd;
+border:2px solid #ff9800;
+padding:18px;
+border-radius:12px;
+font-size:18px;
+font-weight:bold;
+color:#d35400;
+line-height:30px;
+}
 
-    .products {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      padding: 15px;
-    }
+h2{
+margin-top:25px;
+}
 
-    .card {
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
+.category{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+padding:20px;
+}
 
-    .card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-    }
+.cat-btn{
+background:#ffffff;
+padding:35px 10px;
+border-radius:15px;
+font-size:20px;
+font-weight:bold;
+box-shadow:0 3px 10px rgba(0,0,0,.1);
+text-decoration:none;
+color:#000;
+}
 
-    .card h4 {
-      margin: 10px;
-    }
-
-    .price {
-      color: green;
-      margin: 0 10px;
-      font-weight: bold;
-    }
-
-    .whatsapp {
-      display: block;
-      margin: 10px;
-      background: #25D366;
-      color: white;
-      text-align: center;
-      padding: 8px;
-      border-radius: 5px;
-      text-decoration: none;
-    }
-  </style>
+.cat-btn:hover{
+background:#eaf7ff;
+}
+</style>
 </head>
 <body>
 
+<div class="top">
+<a href="dealerlogin.html">
+<button class="login-btn">
+Dealer Login
+</button>
+</a>
+</div>
+
 <div class="notice">
-  📢 ₹10 me apna product promote karo (30 din)
+⚠ ONLY CASH ON DELIVERY ACCEPT <br><br>
+किसी को भी payment पहले ना दें <br>
+Product received के बाद ही payment दें
 </div>
 
-<div class="header">
-  <h3>My Market</h3>
-  <button class="btn" onclick="goLogin()">Dealer Login</button>
+<h2>Categories</h2>
+
+<div class="category">
+
+<a href="#" class="cat-btn">📱 Mobiles</a>
+
+<a href="#" class="cat-btn">👕 Fashion</a>
+
+<a href="#" class="cat-btn">🏠 Home Items</a>
+
+<a href="#" class="cat-btn">🚲 Bikes</a>
+
+<a href="#" class="cat-btn">💻 Electronics</a>
+
+<a href="#" class="cat-btn">🛋 Furniture</a>
+
+<a href="#" class="cat-btn">🐄 Animals</a>
+
+<a href="#" class="cat-btn">📦 More</a>
+
 </div>
-
-<div class="products" id="products"></div>
-
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-const supabase = createClient(
-  "https://katbdbzoufiblnnsoxkk.supabase.co",
-  "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a"
-);
-
-// load products
-const load = async ()=>{
-  const { data } = await supabase.from("products").select("*");
-
-  const div = document.getElementById("products");
-
-  div.innerHTML = data.map(p=>`
-    <div class="card">
-      <img src="${p.image}">
-      <h4>${p.name}</h4>
-      <div class="price">₹${p.price}</div>
-      <a class="whatsapp" href="https://wa.me/${p.whatsapp}" target="_blank">
-        Contact on WhatsApp
-      </a>
-    </div>
-  `).join("");
-}
-
-load();
-
-// login redirect
-window.goLogin = ()=>{
-  location.href = "login.html";
-}
-</script>
 
 </body>
 </html>
