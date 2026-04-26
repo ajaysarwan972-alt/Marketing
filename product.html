@@ -1,41 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Product</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<title>Product Detail</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
 
 <div id="product"></div>
 
-<button style="margin:20px;padding:12px;background:green;color:white;width:90%;">
-  Buy Now
+<!-- BUY BUTTON -->
+<button onclick="sendWhatsApp()"
+style="margin:20px;padding:12px;background:green;color:white;width:90%;">
+  Buy on WhatsApp
 </button>
 
 <script>
+
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
+
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 let id = new URLSearchParams(window.location.search).get("id");
 
+// 🔥 product data store yaha hoga
+let productData = {};
+
+// ================= LOAD PRODUCT =================
 async function loadProduct(){
-  let { data } = await client
+
+  let { data, error } = await client
     .from("products")
     .select("*")
     .eq("id", id)
     .single();
 
+  if(error){
+    document.getElementById("product").innerHTML = "Product not found";
+    return;
+  }
+
+  productData = data;
+
   document.getElementById("product").innerHTML = `
     <img src="${data.image}" style="width:100%;">
     <h2>${data.name}</h2>
     <h3>₹${data.price}</h3>
+    <p>${data.description || ""}</p>
     <p>Category: ${data.category || "N/A"}</p>
   `;
 }
 
 loadProduct();
+
+
+// ================= WHATSAPP ORDER =================
+function sendWhatsApp(){
+
+  // 🔥 IMPORTANT: dealer ka number database se aayega
+  let dealerNumber = productData.whatsapp;
+
+  if(!dealerNumber){
+    alert("Dealer number not available");
+    return;
+  }
+
+  let message =
+`🛒 New Order Request
+
+Product: ${productData.name}
+Price: ₹${productData.price}
+
+Mujhe ye product chahiye.`;
+
+  let url = `https://wa.me/${dealerNumber}?text=${encodeURIComponent(message)}`;
+
+  window.open(url, "_blank");
+}
+
 </script>
 
 </body>
