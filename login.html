@@ -120,7 +120,7 @@ alert("Fill all fields");
 return;
 }
 
-// 🔥 FIX: .single() hata diya (safe method)
+// 🔥 SAFE QUERY (no .single)
 let { data, error } = await supabase
 .from("dealers")
 .select("*")
@@ -142,7 +142,7 @@ localStorage.setItem("dealer", JSON.stringify(data[0]));
 
 alert("Login Success");
 
-// 🔥 redirect fix
+// 🔥 REDIRECT TO DEALER HOME
 window.location.href = "dealerhome.html";
 
 }
