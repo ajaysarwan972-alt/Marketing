@@ -121,32 +121,29 @@ alert("Fill all fields");
 return;
 }
 
-// 🔥 fetch full table
+// fetch dealer
 let { data, error } = await supabase
 .from("dealers")
-.select("*");
+.select("*")
+.eq("mobile", mobile)
+.eq("password", password);
 
 if(error){
 alert("Server error");
 return;
 }
 
-// 🔥 manual match (SAFE METHOD)
-let user = data.find(d =>
-  d.mobile == mobile && d.password == password
-);
-
-if(!user){
+if(!data || data.length === 0){
 alert("Wrong login details");
 return;
 }
 
 // save session
-localStorage.setItem("dealer", JSON.stringify(user));
+localStorage.setItem("dealer", JSON.stringify(data[0]));
 
 alert("Login Success");
 
-// redirect
+// 🔥 redirect to dashboard
 window.location.href = "dealerhome.html";
 
 }
