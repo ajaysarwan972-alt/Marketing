@@ -53,6 +53,7 @@ border:none;
 background:#f3f5f7;
 border-radius:14px;
 font-size:16px;
+outline:none;
 }
 
 button{
@@ -89,18 +90,12 @@ font-size:14px;
 
 <div class="box">
 
-<div class="logo">
-Dealer Signup
-</div>
+<div class="logo">Dealer Signup</div>
 
-<div class="sub">
-Create Your Dealer Account
-</div>
+<div class="sub">Create Your Dealer Account</div>
 
 <input id="name" placeholder="Full Name">
-
 <input id="mobile" placeholder="Mobile Number">
-
 <input id="password" type="password" placeholder="Password">
 
 <button class="signupBtn" onclick="signup()">
@@ -118,45 +113,52 @@ Secure Dealer Registration
 
 </div>
 
-
 <script>
-const supabaseUrl="https://katbdbzoufiblnnsoxkk.supabase.co";
 
-const supabaseKey="sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+const supabaseKey = "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
 
-const supabase=window.supabase.createClient(
+const supabase = window.supabase.createClient(
 supabaseUrl,
 supabaseKey
 );
 
+// ================= SIGNUP =================
 async function signup(){
 
-let name=document.getElementById("name").value;
-let mobile=document.getElementById("mobile").value;
-let password=document.getElementById("password").value;
+let name = document.getElementById("name").value.trim();
+let mobile = document.getElementById("mobile").value.trim();
+let password = document.getElementById("password").value.trim();
 
 if(!name || !mobile || !password){
 alert("Fill all fields");
 return;
 }
 
-let {data:check}=await supabase
+// 🔥 check existing mobile safely
+let { data: check, error: checkError } = await supabase
 .from("dealers")
 .select("*")
-.eq("mobile",mobile);
+.eq("mobile", mobile);
 
-if(check.length>0){
+if(checkError){
+alert("Server error");
+return;
+}
+
+if(check && check.length > 0){
 alert("Mobile already registered");
 return;
 }
 
-let {error}=await supabase
+// 🔥 insert new dealer
+let { error } = await supabase
 .from("dealers")
 .insert([
 {
-name:name,
-mobile:mobile,
-password:password
+name: name,
+mobile: mobile,
+password: password
 }
 ]);
 
@@ -165,11 +167,13 @@ alert("Signup Failed");
 return;
 }
 
-alert("Signup Successful");
+alert("Signup Successful ✅");
 
-window.location.href="dealer-login.html";
+// redirect
+window.location.href = "dealer-login.html";
 
 }
+
 </script>
 
 </body>
