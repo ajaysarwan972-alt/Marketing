@@ -1,225 +1,110 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Add Product</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>User Home</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
 body{
-background:#eef3ff;
-padding:20px;
-}
-.box{
-max-width:500px;
-margin:auto;
-background:#fff;
-padding:25px;
-border-radius:25px;
-box-shadow:0 10px 30px rgba(0,0,0,.12);
-}
-h2{
+margin:0;
+font-family:Arial;
+background:#f5f5f5;
 text-align:center;
-color:#0072ff;
-margin-bottom:20px;
 }
-input,textarea{
-width:100%;
+
+.top{
+background:#fff;
 padding:15px;
-margin:12px 0;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.login-btn{
+background:#008000;
+color:#fff;
+padding:12px 25px;
 border:none;
-background:#f4f6fa;
-border-radius:14px;
-font-size:16px;
-}
-textarea{
-height:110px;
-resize:none;
-}
-.preview{
-width:100%;
-display:none;
-margin-top:15px;
-border-radius:15px;
-}
-button{
-width:100%;
-padding:15px;
-border:none;
-border-radius:14px;
+border-radius:30px;
 font-size:18px;
 font-weight:bold;
-margin-top:15px;
 }
-.saveBtn{
-background:#10b981;
-color:#fff;
+
+.notice{
+margin:20px;
+background:#fff3cd;
+border:2px solid #ff9800;
+padding:18px;
+border-radius:12px;
+font-size:18px;
+font-weight:bold;
+color:#d35400;
+line-height:30px;
 }
-.backBtn{
-background:#0072ff;
-color:#fff;
+
+h2{
+margin-top:25px;
+}
+
+.category{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+padding:20px;
+}
+
+.cat-btn{
+background:#ffffff;
+padding:35px 10px;
+border-radius:15px;
+font-size:20px;
+font-weight:bold;
+box-shadow:0 3px 10px rgba(0,0,0,.1);
+text-decoration:none;
+color:#000;
+}
+
+.cat-btn:hover{
+background:#eaf7ff;
 }
 </style>
 </head>
 <body>
 
-<div class="box">
-
-<h2>Add Product</h2>
-
-<input id="name" placeholder="Product Name">
-
-<input id="price" placeholder="Product Price">
-
-<input id="size" placeholder="Product Size Detail">
-
-<input id="whatsapp" placeholder="Whatsapp Number">
-
-<textarea id="description"
-placeholder="Product Description"></textarea>
-
-<input
-type="file"
-id="imageFile"
-accept="image/*"
-onchange="previewImage()">
-
-<img id="preview" class="preview">
-
-<button class="saveBtn"
-onclick="saveProduct()">
-Save Product
+<div class="top">
+<a href="dealerlogin.html">
+<button class="login-btn">
+Dealer Login
 </button>
-
-<button class="backBtn"
-onclick="location.href='dealerhome.html'">
-Back
-</button>
-
+</a>
 </div>
 
+<div class="notice">
+⚠ ONLY CASH ON DELIVERY ACCEPT <br><br>
+किसी को भी payment पहले ना दें <br>
+Product received के बाद ही payment दें
+</div>
 
-<script>
+<h2>Categories</h2>
 
-const supabaseUrl=
-"https://katbdbzoufiblnnsoxkk.supabase.co";
+<div class="category">
 
-const supabaseKey=
-"sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
+<a href="#" class="cat-btn">📱 Mobiles</a>
 
-const supabase=
-window.supabase.createClient(
-supabaseUrl,
-supabaseKey
-);
+<a href="#" class="cat-btn">👕 Fashion</a>
 
-let dealer=
-JSON.parse(localStorage.getItem("dealer"));
+<a href="#" class="cat-btn">🏠 Home Items</a>
 
-if(!dealer){
-location.href="dealer-login.html";
-}
+<a href="#" class="cat-btn">🚲 Bikes</a>
 
-function previewImage(){
+<a href="#" class="cat-btn">💻 Electronics</a>
 
-let file=
-document.getElementById("imageFile").files[0];
+<a href="#" class="cat-btn">🛋 Furniture</a>
 
-if(file){
-let url=URL.createObjectURL(file);
+<a href="#" class="cat-btn">🐄 Animals</a>
 
-let img=document.getElementById("preview");
-img.src=url;
-img.style.display="block";
-}
+<a href="#" class="cat-btn">📦 More</a>
 
-}
-
-
-async function saveProduct(){
-
-let name=
-document.getElementById("name").value;
-
-let price=
-document.getElementById("price").value;
-
-let size=
-document.getElementById("size").value;
-
-let whatsapp=
-document.getElementById("whatsapp").value;
-
-let description=
-document.getElementById("description").value;
-
-let file=
-document.getElementById("imageFile").files[0];
-
-if(!name || !price || !file){
-alert("Fill required fields");
-return;
-}
-
-
-let fileName=
-Date.now()+"_"+file.name;
-
-
-
-let upload=await supabase.storage
-.from("products")
-.upload(fileName,file);
-
-
-if(upload.error){
-alert("Image Upload Failed");
-return;
-}
-
-
-let imageUrl=
-supabase.storage
-.from("products")
-.getPublicUrl(fileName)
-.data.publicUrl;
-
-
-
-let {error}=await supabase
-.from("products")
-.insert([
-{
-name:name,
-price:price,
-size:size,
-whatsapp:whatsapp,
-description:description,
-image:imageUrl,
-dealer_id:dealer.id
-}
-]);
-
-
-if(error){
-alert("Product Save Failed");
-return;
-}
-
-alert("Product Added Successfully");
-
-location.href="dealerhome.html";
-
-}
-
-</script>
+</div>
 
 </body>
 </html>
