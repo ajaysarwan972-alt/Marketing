@@ -1,176 +1,171 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Dealer Signup</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
-
 body{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:linear-gradient(135deg,#00c6ff,#0072ff);
+  margin:0;
+  font-family:Arial;
+  background:#f2f2f2;
+  text-align:center;
 }
 
-.box{
-width:95%;
-max-width:400px;
-background:#fff;
-padding:30px 25px;
-border-radius:28px;
-box-shadow:0 15px 40px rgba(0,0,0,.25);
+.top{
+  background:red;
+  height:50px;
 }
 
 .logo{
-text-align:center;
-font-size:32px;
-font-weight:bold;
-color:#0072ff;
-margin-bottom:8px;
+  margin-top:20px;
 }
 
-.sub{
-text-align:center;
-color:#666;
-margin-bottom:25px;
+.logo img{
+  width:90px;
+  border-radius:50%;
 }
 
-input{
-width:100%;
-padding:15px;
-margin:10px 0;
-border:none;
-background:#f3f5f7;
-border-radius:14px;
-font-size:16px;
-outline:none;
+h1{
+  color:red;
+  margin-top:15px;
 }
 
-button{
-width:100%;
-padding:15px;
-border:none;
-border-radius:14px;
-font-size:17px;
-font-weight:bold;
-cursor:pointer;
+.container{
+  width:90%;
+  margin:auto;
 }
 
-.signupBtn{
-background:#0072ff;
-color:#fff;
-margin-top:12px;
+.input{
+  width:100%;
+  margin:12px 0;
+  padding:15px;
+  border-radius:25px;
+  border:none;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  font-size:16px;
 }
 
-.loginBtn{
-background:#10b981;
-color:#fff;
-margin-top:15px;
+.btn{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:30px;
+  background:red;
+  color:#fff;
+  font-size:18px;
+  font-weight:bold;
+  margin-top:15px;
 }
 
-.footer{
-text-align:center;
-margin-top:18px;
-color:#777;
-font-size:14px;
+.link{
+  margin-top:15px;
+  color:#333;
+}
+.link span{
+  color:red;
+  font-weight:bold;
+  cursor:pointer;
 }
 </style>
+
 </head>
+
 <body>
 
-<div class="box">
+<div class="top"></div>
 
-<div class="logo">Dealer Signup</div>
-
-<div class="sub">Create Your Dealer Account</div>
-
-<input id="name" placeholder="Full Name">
-<input id="mobile" placeholder="Mobile Number">
-<input id="password" type="password" placeholder="Password">
-
-<button class="signupBtn" onclick="signup()">
-Create Account
-</button>
-
-<button class="loginBtn"
-onclick="window.location.href='dealer-login.html'">
-Back To Login
-</button>
-
-<div class="footer">
-Secure Dealer Registration
+<div class="logo">
+  <img src="https://i.imgur.com/2yaf2wb.png">
 </div>
+
+<h1>Create Account</h1>
+
+<div class="container">
+
+<input id="name" class="input" placeholder="Full Name">
+<input id="mobile" class="input" placeholder="Mobile Number">
+<input id="password" type="password" class="input" placeholder="Password">
+
+<!-- OPTIONAL REF -->
+<input id="ref" class="input" placeholder="Referral Code (Optional)">
+
+<button class="btn" onclick="signup()">REGISTER</button>
+
+<p class="link">Already a Member? 
+<span onclick="location.href='index.html'">Login</span>
+</p>
 
 </div>
 
 <script>
 
-const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
+// 🔥 REF AUTO CAPTURE (LINK SE)
+let params = new URLSearchParams(window.location.search);
+let autoRef = params.get("ref");
 
-const supabase = window.supabase.createClient(
-supabaseUrl,
-supabaseKey
+if(autoRef){
+  localStorage.setItem("ref_by", autoRef);
+}
+
+// SUPABASE
+const client = supabase.createClient(
+"https://katbdbzoufiblnnsoxkk.supabase.co",
+"sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a"
 );
 
-// ================= SIGNUP =================
+// SIGNUP
 async function signup(){
 
 let name = document.getElementById("name").value.trim();
 let mobile = document.getElementById("mobile").value.trim();
 let password = document.getElementById("password").value.trim();
+let manualRef = document.getElementById("ref").value.trim();
+
+// 🔥 FINAL REF LOGIC
+let ref_by = manualRef || localStorage.getItem("ref_by") || null;
 
 if(!name || !mobile || !password){
-alert("Fill all fields");
+alert("Sab fill kar");
 return;
 }
 
-// 🔥 check existing mobile safely
-let { data: check, error: checkError } = await supabase
-.from("dealers")
+// MOBILE DUPLICATE CHECK
+let { data:exist } = await client
+.from("login")
 .select("*")
 .eq("mobile", mobile);
 
-if(checkError){
-alert("Server error");
+if(exist.length > 0){
+alert("Number already registered");
 return;
 }
 
-if(check && check.length > 0){
-alert("Mobile already registered");
-return;
-}
-
-// 🔥 insert new dealer
-let { error } = await supabase
-.from("dealers")
-.insert([
-{
-name: name,
-mobile: mobile,
-password: password
-}
-]);
+// INSERT
+let { error } = await client
+.from("login")
+.insert([{
+  name:name,
+  mobile:mobile,
+  password:password,
+  balance:0,
+  ref_code: mobile,   // apna referral code
+  ref_by: ref_by      // jisne refer kiya
+}]);
 
 if(error){
-alert("Signup Failed");
-return;
+alert("Error: " + error.message);
+}else{
+
+alert("Signup Success ✅");
+
+// REF CLEAR
+localStorage.removeItem("ref_by");
+
+location.href="index.html";
 }
-
-alert("Signup Successful ✅");
-
-// redirect
-window.location.href = "dealer-login.html";
 
 }
 
