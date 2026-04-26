@@ -1,42 +1,175 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Signup</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dealer Signup</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#00c6ff,#0072ff);
+}
+
+.box{
+width:95%;
+max-width:400px;
+background:#fff;
+padding:30px 25px;
+border-radius:28px;
+box-shadow:0 15px 40px rgba(0,0,0,.25);
+}
+
+.logo{
+text-align:center;
+font-size:32px;
+font-weight:bold;
+color:#0072ff;
+margin-bottom:8px;
+}
+
+.sub{
+text-align:center;
+color:#666;
+margin-bottom:25px;
+}
+
+input{
+width:100%;
+padding:15px;
+margin:10px 0;
+border:none;
+background:#f3f5f7;
+border-radius:14px;
+font-size:16px;
+}
+
+button{
+width:100%;
+padding:15px;
+border:none;
+border-radius:14px;
+font-size:17px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.signupBtn{
+background:#0072ff;
+color:#fff;
+margin-top:12px;
+}
+
+.loginBtn{
+background:#10b981;
+color:#fff;
+margin-top:15px;
+}
+
+.footer{
+text-align:center;
+margin-top:18px;
+color:#777;
+font-size:14px;
+}
+</style>
 </head>
 <body>
 
-<h2>Dealer Signup</h2>
+<div class="box">
 
-<input id="name" placeholder="Name"><br><br>
-<input id="mobile" placeholder="Mobile"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
+<div class="logo">
+Dealer Signup
+</div>
 
-<button onclick="signup()">Signup</button>
+<div class="sub">
+Create Your Dealer Account
+</div>
 
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+<input id="name" placeholder="Full Name">
 
-const supabase = createClient(
-  "https://katbdbzoufiblnnsoxkk.supabase.co",
-  "sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a"
+<input id="mobile" placeholder="Mobile Number">
+
+<input id="password" type="password" placeholder="Password">
+
+<button class="signupBtn" onclick="signup()">
+Create Account
+</button>
+
+<button class="loginBtn"
+onclick="window.location.href='dealer-login.html'">
+Back To Login
+</button>
+
+<div class="footer">
+Secure Dealer Registration
+</div>
+
+</div>
+
+
+<script>
+const supabaseUrl="https://katbdbzoufiblnnsoxkk.supabase.co";
+
+const supabaseKey="sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
+
+const supabase=window.supabase.createClient(
+supabaseUrl,
+supabaseKey
 );
 
-window.signup = async () => {
-  const name = document.getElementById("name").value;
-  const mobile = document.getElementById("mobile").value;
-  const password = document.getElementById("password").value;
+async function signup(){
 
-  const { error } = await supabase.from("dealers").insert([
-    { name, mobile, password, balance: 0 }
-  ]);
+let name=document.getElementById("name").value;
+let mobile=document.getElementById("mobile").value;
+let password=document.getElementById("password").value;
 
-  if (error) {
-    alert("Error: " + error.message);
-  } else {
-    alert("Signup Success");
-    window.location.href = "login.html";
-  }
-};
+if(!name || !mobile || !password){
+alert("Fill all fields");
+return;
+}
+
+let {data:check}=await supabase
+.from("dealers")
+.select("*")
+.eq("mobile",mobile);
+
+if(check.length>0){
+alert("Mobile already registered");
+return;
+}
+
+let {error}=await supabase
+.from("dealers")
+.insert([
+{
+name:name,
+mobile:mobile,
+password:password
+}
+]);
+
+if(error){
+alert("Signup Failed");
+return;
+}
+
+alert("Signup Successful");
+
+window.location.href="dealer-login.html";
+
+}
 </script>
 
 </body>
