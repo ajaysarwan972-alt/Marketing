@@ -1,290 +1,143 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Market Home</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bhola Shop</title>
 
 <style>
 body{
-margin:0;
-font-family:Arial;
-background:#f2f2f2;
+  margin:0;
+  font-family:Arial;
+  background:#f4f4f4;
 }
 
-.topbar{
-background:#111;
-color:#fff;
-text-align:center;
-padding:10px;
-font-weight:bold;
-font-size:14px;
-}
-
+/* TOP BAR */
 .header{
-background:#fff;
-padding:15px;
-box-shadow:0 2px 10px rgba(0,0,0,.1);
-position:sticky;
-top:0;
-z-index:99;
+  background:#ff3f6c;
+  color:white;
+  padding:12px;
+  display:flex;
+  align-items:center;
 }
 
-.search{
-width:100%;
-padding:14px;
-border:1px solid #ddd;
-border-radius:30px;
-box-sizing:border-box;
-font-size:16px;
+.menu{
+  font-size:26px;
+  cursor:pointer;
 }
 
-.dealer-btn{
-display:block;
-margin:12px auto 0;
-width:230px;
-text-align:center;
-background:#0a9d2f;
-color:#fff;
-padding:12px;
-text-decoration:none;
-border-radius:30px;
-font-weight:bold;
+/* SIDE MENU */
+.side{
+  position:fixed;
+  top:0;
+  left:-260px;
+  width:260px;
+  height:100%;
+  background:#111;
+  color:#fff;
+  transition:0.3s;
+  padding-top:60px;
 }
 
-.banner{
-margin:15px;
-background:linear-gradient(45deg,#ff0080,#ff9800);
-padding:35px;
-border-radius:25px;
-text-align:center;
-color:white;
-font-size:30px;
-font-weight:bold;
+.side a{
+  display:block;
+  padding:12px;
+  color:#fff;
+  text-decoration:none;
+  border-bottom:1px solid #333;
 }
 
-.notice{
-margin:15px;
-background:#fff4cf;
-border:2px solid orange;
-border-radius:18px;
-padding:18px;
-text-align:center;
-font-weight:bold;
-line-height:28px;
+.side a:hover{
+  background:#ff3f6c;
 }
 
-.title{
-padding:15px;
-font-size:24px;
-font-weight:bold;
+/* OVERLAY */
+.overlay{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.5);
+  display:none;
 }
 
-.cat-wrap{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:12px;
-padding:15px;
+/* HERO */
+.hero{
+  background:white;
+  margin:10px;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
 }
 
-.cat{
-background:#fff;
-border-radius:20px;
-padding:15px 8px;
-text-align:center;
-box-shadow:0 2px 8px rgba(0,0,0,.08);
-font-weight:bold;
+/* CATEGORY */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  padding:10px;
 }
 
-.cat span{
-display:block;
-font-size:30px;
-margin-bottom:8px;
+.box{
+  background:white;
+  padding:25px;
+  text-align:center;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
 }
 
-.products{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-padding:15px;
-}
-
-.card{
-background:#fff;
-border-radius:18px;
-overflow:hidden;
-box-shadow:0 3px 10px rgba(0,0,0,.1);
-}
-
-.pimg{
-height:180px;
-background:#eee;
-}
-
-.pimg img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
-
-.info{
-padding:12px;
-}
-
-.name{
-font-size:18px;
-font-weight:bold;
-}
-
-.price{
-font-size:22px;
-font-weight:bold;
-color:#e91e63;
-margin-top:8px;
-}
-
-.cod{
-display:inline-block;
-margin-top:8px;
-background:#e8fff0;
-color:green;
-padding:6px 12px;
-border-radius:20px;
-font-size:12px;
-}
-
-.buy{
-display:block;
-margin-top:12px;
-background:#ff0080;
-color:white;
-text-decoration:none;
-text-align:center;
-padding:11px;
-border-radius:25px;
-font-weight:bold;
+.box:active{
+  transform:scale(0.97);
 }
 </style>
 </head>
+
 <body>
 
-<div class="topbar">
-Product dalne ke liye 10 Rs month ke only 1 product
-</div>
-
 <div class="header">
-<input class="search" placeholder="Search products...">
-
-<a href="login.html" class="dealer-btn">
-Dealer Login
-</a>
+  <div class="menu" onclick="openMenu()">☰</div>
+  <h3 style="margin-left:15px;">Bhola Shop</h3>
 </div>
 
-<div class="banner">
-MEGA SALE
+<!-- SIDE MENU -->
+<div class="side" id="side">
+  <a href="index.html">Home</a>
+  <a href="game.html">Jodi</a>
+  <a href="harf.html">Harf</a>
+  <a href="crossing.html">Crossing</a>
+  <a href="copypast.html">Copy Paste</a>
 </div>
 
-<div class="notice">
-ONLY CASH ON DELIVERY ACCEPT <br>
-किसी को भी payment पहले ना दें <br>
-Product receive ke baad payment dein
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<div class="hero">
+  <h2>🛒 Bhola Shop</h2>
+  <p>Cash on Delivery Available</p>
 </div>
 
-<div class="title">
-Shop By Category
-</div>
-
-<div class="cat-wrap">
-<div class="cat"><span>👗</span>Fashion</div>
-<div class="cat"><span>📱</span>Mobile</div>
-<div class="cat"><span>💄</span>Beauty</div>
-<div class="cat"><span>🏠</span>Home</div>
-<div class="cat"><span>🛋</span>Furniture</div>
-<div class="cat"><span>🚲</span>Bike</div>
-<div class="cat"><span>🎮</span>Games</div>
-<div class="cat"><span>📦</span>More</div>
-</div>
-
-<div class="title">
-Latest Products
-</div>
-
-<div class="products" id="products">
-Loading...
+<div class="grid">
+  <div class="box" onclick="go('mobile.html')">📱 Mobile</div>
+  <div class="box" onclick="go('clothes.html')">👕 Clothes</div>
+  <div class="box" onclick="go('electronics.html')">💻 Electronics</div>
+  <div class="box" onclick="go('grocery.html')">🛒 Grocery</div>
 </div>
 
 <script>
-const supabaseUrl="https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey="sb_publishable_--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
 
-const supabase=window.supabase.createClient(
-supabaseUrl,
-supabaseKey
-);
-
-async function loadProducts(){
-
-const {data,error}=await supabase
-.from("products")
-.select("*")
-.order("id",{ascending:false});
-
-if(error){
-document.getElementById("products").innerHTML=
-"Products not loading";
-return;
+function openMenu(){
+  document.getElementById("side").style.left="0";
+  document.getElementById("overlay").style.display="block";
 }
 
-if(!data.length){
-document.getElementById("products").innerHTML=
-"No Products Added Yet";
-return;
+function closeMenu(){
+  document.getElementById("side").style.left="-260px";
+  document.getElementById("overlay").style.display="none";
 }
 
-let html="";
-
-data.forEach(p=>{
-
-html+=`
-<div class="card">
-
-<div class="pimg">
-<img src="${p.image || 'https://via.placeholder.com/300'}">
-</div>
-
-<div class="info">
-
-<div class="name">
-${p.product_name}
-</div>
-
-<div class="price">
-₹${p.price}
-</div>
-
-<div class="cod">
-Cash On Delivery
-</div>
-
-<a class="buy"
-href="https://wa.me/${p.whatsapp}?text=I want to order ${p.product_name}">
-Order Now
-</a>
-
-</div>
-
-</div>
-`;
-
-});
-
-document.getElementById("products").innerHTML=html;
-
+function go(page){
+  window.location.href = page;
 }
 
-loadProducts();
 </script>
 
 </body>
