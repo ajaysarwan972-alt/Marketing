@@ -51,7 +51,6 @@ button{
   border:none;
   border-radius:10px;
   font-weight:bold;
-  font-size:15px;
 }
 
 button:active{
@@ -89,12 +88,15 @@ button:active{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+/* 🔥 SUPABASE CONFIG */
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "sb_publishable--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
+
+/* ⚠️ YAHAN REAL ANON KEY DALNI HAI */
+const supabaseKey = "PASTE_YOUR_ANON_PUBLIC_KEY_HERE";
 
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* UPLOAD IMAGE */
+/* IMAGE UPLOAD */
 async function uploadImage(file){
 
   if(!file) return "";
