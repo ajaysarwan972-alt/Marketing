@@ -12,7 +12,7 @@ body{
 }
 
 .header{
-  background:linear-gradient(135deg,#1e88e5,#1565c0);
+  background:#1e88e5;
   color:white;
   padding:18px;
   text-align:center;
@@ -20,32 +20,30 @@ body{
   font-weight:bold;
 }
 
-/* BUTTONS (ONLY ADMIN NOW) */
-.top-btns{
+/* ADMIN BUTTON */
+.admin-bar{
   padding:10px;
-  display:flex;
-  gap:10px;
 }
 
-.top-btns button{
-  flex:1;
+.admin-bar button{
+  width:100%;
   padding:12px;
   border:none;
+  border-radius:10px;
+  background:#ff9800;
   color:white;
   font-weight:bold;
-  border-radius:10px;
-  cursor:pointer;
 }
 
-.admin{ background:#ff9800; }
-
 /* DROPDOWNS */
-.box{ padding:10px; }
+.box{
+  padding:10px;
+}
 
 .row{
   display:flex;
   gap:10px;
-  margin-top:8px;
+  margin-top:10px;
 }
 
 select{
@@ -97,11 +95,9 @@ button.view{
 
 <div class="header">🚀 Job Finder</div>
 
-<!-- ONLY ADMIN BUTTON -->
-<div class="top-btns">
-  <button class="admin" onclick="window.location.href='admin.html'">
-    🔐 Admin Panel
-  </button>
+<!-- ADMIN BUTTON -->
+<div class="admin-bar">
+  <button onclick="window.location.href='admin.html'">🔐 Admin Panel</button>
 </div>
 
 <!-- DROPDOWNS -->
@@ -136,6 +132,7 @@ button.view{
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
+/* ✔ YOUR WORKING KEY */
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
@@ -144,7 +141,7 @@ let allJobs = [];
 
 window.onload = async function(){
   await loadJobs();
-  fillDropdowns();
+  await loadFilters();
 }
 
 /* LOAD JOBS */
@@ -157,39 +154,24 @@ async function loadJobs(){
 
   if(error){
     console.log(error);
-    alert("Error loading jobs");
     return;
   }
 
   allJobs = data || [];
-  showJobs(allJobs);
+  renderJobs(allJobs);
 }
 
-/* FILTER */
-function filterJobs(){
+/* LOAD FILTERS */
+async function loadFilters(){
 
-  let state = document.getElementById("state").value;
-  let city = document.getElementById("city").value;
-  let jobtype = document.getElementById("jobtype").value;
-  let education = document.getElementById("education").value;
+  let { data } = await supabase.from("jobs").select("state,city,category,qualification");
 
-  let filtered = allJobs.filter(j =>
-    (!state || j.state === state) &&
-    (!city || j.city === city) &&
-    (!jobtype || j.category === jobtype) &&
-    (!education || j.qualification === education)
-  );
+  if(!data) return;
 
-  showJobs(filtered);
-}
-
-/* DROPDOWNS */
-function fillDropdowns(){
-
-  fill("state", [...new Set(allJobs.map(j=>j.state).filter(Boolean))]);
-  fill("city", [...new Set(allJobs.map(j=>j.city).filter(Boolean))]);
-  fill("jobtype", [...new Set(allJobs.map(j=>j.category).filter(Boolean))]);
-  fill("education", [...new Set(allJobs.map(j=>j.qualification).filter(Boolean))]);
+  fill("state",[...new Set(data.map(i=>i.state).filter(Boolean))]);
+  fill("city",[...new Set(data.map(i=>i.city).filter(Boolean))]);
+  fill("jobtype",[...new Set(data.map(i=>i.category).filter(Boolean))]);
+  fill("education",[...new Set(data.map(i=>i.qualification).filter(Boolean))]);
 }
 
 function fill(id, arr){
@@ -199,23 +181,39 @@ function fill(id, arr){
   });
 }
 
+/* FILTER FUNCTION */
+function filterJobs(){
+
+  let state = document.getElementById("state").value;
+  let city = document.getElementById("city").value;
+  let jobtype = document.getElementById("jobtype").value;
+  let education = document.getElementById("education").value;
+
+  let filtered = allJobs.filter(j =>
+    (!state || j.state == state) &&
+    (!city || j.city == city) &&
+    (!jobtype || j.category == jobtype) &&
+    (!education || j.qualification == education)
+  );
+
+  renderJobs(filtered);
+}
+
 /* SHOW JOBS */
-function showJobs(data){
+function renderJobs(data){
 
   let box = document.getElementById("jobs");
   box.innerHTML = "";
 
-  if(!data.length){
+  if(data.length === 0){
     box.innerHTML = "<p style='text-align:center'>No Jobs Found</p>";
     return;
   }
 
-  data.forEach(j => {
-
+  data.forEach(j=>{
     box.innerHTML += `
       <div class="card">
         <img src="${j.image_url || 'https://via.placeholder.com/300'}">
-
         <h3>${j.company_name || ''}</h3>
 
         <span class="tag">${j.category || ''}</span>
@@ -223,9 +221,7 @@ function showJobs(data){
 
         <p>${j.city || ''} | ${j.state || ''}</p>
 
-        <a href="job.html?id=${j.id}">
-          <button class="view">View Details</button>
-        </a>
+        <button class="view">View Details</button>
       </div>
     `;
   });
