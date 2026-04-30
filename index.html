@@ -21,27 +21,25 @@ body{
   font-weight:bold;
 }
 
-/* FILTER BOX */
+/* BOX */
 .box{
   padding:12px;
 }
 
-/* 2 IN ONE ROW */
+/* 2 IN ONE ROW ONLY */
 .row{
   display:flex;
   gap:10px;
-  margin-bottom:10px;
+  margin-top:10px;
 }
 
-/* SELECT STYLE */
+/* SELECT */
 select{
   flex:1;
   padding:12px;
-  border-radius:12px;
+  border-radius:10px;
   border:1px solid #ccc;
   background:white;
-  font-size:14px;
-  outline:none;
 }
 
 /* CARD */
@@ -85,12 +83,11 @@ button.view{
 
 <div class="header">🚀 Job Finder</div>
 
-<!-- FILTERS -->
 <div class="box">
 
   <!-- ROW 1 -->
   <div class="row">
-    <select id="state" onchange="loadCities(); filterJobs()">
+    <select id="state" onchange="filterJobs(); loadCities();">
       <option value="">Select State</option>
     </select>
 
@@ -120,7 +117,7 @@ button.view{
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 let allJobs = [];
 
@@ -134,28 +131,39 @@ window.onload = async function(){
 
 /* JOBS */
 async function loadJobs(){
-  const { data } = await supabase.from("jobs").select("*").order("id",{ascending:false});
+
+  const { data, error } = await supabaseClient
+    .from("jobs")
+    .select("*")
+    .order("id", { ascending:false });
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
   allJobs = data || [];
   showJobs(allJobs);
 }
 
 /* STATES */
 async function loadStates(){
-  const { data } = await supabase.from("jobs").select("state");
-  let box = document.getElementById("state");
+  const { data } = await supabaseClient.from("jobs").select("state");
 
-  let unique = [...new Set((data||[]).map(i=>i.state).filter(Boolean))];
+  let box = document.getElementById("state");
+  let unique = [...new Set((data || []).map(i => i.state).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
   });
 }
 
-/* CITY (state dependent) */
+/* CITIES */
 async function loadCities(){
+
   let state = document.getElementById("state").value;
 
-  let query = supabase.from("jobs").select("city");
+  let query = supabaseClient.from("jobs").select("city, state");
 
   if(state){
     query = query.eq("state", state);
@@ -166,7 +174,7 @@ async function loadCities(){
   let box = document.getElementById("city");
   box.innerHTML = `<option value="">Select City</option>`;
 
-  let unique = [...new Set((data||[]).map(i=>i.city).filter(Boolean))];
+  let unique = [...new Set((data || []).map(i => i.city).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
@@ -175,10 +183,10 @@ async function loadCities(){
 
 /* CATEGORY */
 async function loadCategories(){
-  const { data } = await supabase.from("jobs").select("category");
-  let box = document.getElementById("category");
+  const { data } = await supabaseClient.from("jobs").select("category");
 
-  let unique = [...new Set((data||[]).map(i=>i.category).filter(Boolean))];
+  let box = document.getElementById("category");
+  let unique = [...new Set((data || []).map(i => i.category).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
@@ -187,10 +195,10 @@ async function loadCategories(){
 
 /* QUALIFICATION */
 async function loadQualifications(){
-  const { data } = await supabase.from("jobs").select("qualification");
-  let box = document.getElementById("qualification");
+  const { data } = await supabaseClient.from("jobs").select("qualification");
 
-  let unique = [...new Set((data||[]).map(i=>i.qualification).filter(Boolean))];
+  let box = document.getElementById("qualification");
+  let unique = [...new Set((data || []).map(i => i.qualification).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
