@@ -64,30 +64,37 @@ body{
 <div class="header">📄 Job Details</div>
 
 <div class="container">
-  <div id="job"></div>
+  <div id="job">Loading...</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "PASTE_YOUR_ANON_KEY_HERE";
+
+/* 🔥 YOUR ORIGINAL KEY ADDED */
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-/* GET CLICKED JOB (NO MANUAL ID WRITING) */
+/* GET ID */
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
 window.onload = loadJob;
 
-/* FETCH JOB */
+/* LOAD JOB */
 async function loadJob(){
+
+  if(!id){
+    document.getElementById("job").innerHTML = "<h3>No Job Selected</h3>";
+    return;
+  }
 
   const { data, error } = await supabase
     .from("jobs")
     .select("*")
-    .eq("id", id)
+    .eq("id", Number(id))
     .single();
 
   if(error || !data){
@@ -98,7 +105,7 @@ async function loadJob(){
   showJob(data);
 }
 
-/* SHOW JOB */
+/* SHOW */
 function showJob(j){
 
   document.getElementById("job").innerHTML = `
@@ -114,9 +121,7 @@ function showJob(j){
       <p><b>City:</b> ${j.city || ''}</p>
       <p><b>State:</b> ${j.state || ''}</p>
 
-      <button class="btn" onclick="alert('Apply system add later')">
-        Apply Now
-      </button>
+      <button class="btn">Apply Now</button>
 
     </div>
   `;
