@@ -63,11 +63,10 @@ textarea{
 
 <input type="text" id="title" placeholder="Job Title">
 
-<!-- DYNAMIC INPUTS -->
-<input type="text" id="state" placeholder="State (e.g. Haryana)">
-<input type="text" id="city" placeholder="City (e.g. Yamunanagar)">
-<input type="text" id="jobtype" placeholder="Job Type (e.g. Helper)">
-<input type="text" id="education" placeholder="Education (e.g. 10th Pass)">
+<input type="text" id="state" placeholder="State">
+<input type="text" id="city" placeholder="City">
+<input type="text" id="jobtype" placeholder="Job Type">
+<input type="text" id="education" placeholder="Education">
 
 <textarea id="desc" placeholder="Job Description"></textarea>
 
@@ -82,23 +81,28 @@ textarea{
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "sb_publishable--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+/* FIXED CLIENT NAME */
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 /* IMAGE UPLOAD */
 async function uploadImage(file){
 
   const fileName = Date.now() + "_" + file.name;
 
-  let { error } = await supabase.storage
+  let { error } = await supabaseClient
+    .storage
     .from("job-images")
     .upload(fileName, file);
 
   if(error){
     alert("Image upload failed");
+    console.log(error);
     return "";
   }
 
-  let { data } = supabase.storage
+  let { data } = supabaseClient
+    .storage
     .from("job-images")
     .getPublicUrl(fileName);
 
@@ -117,12 +121,10 @@ async function addJob(){
 
   let company = document.getElementById("company").value;
   let title = document.getElementById("title").value;
-
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
   let jobtype = document.getElementById("jobtype").value;
   let education = document.getElementById("education").value;
-
   let desc = document.getElementById("desc").value;
   let phone = document.getElementById("phone").value;
 
@@ -131,7 +133,7 @@ async function addJob(){
     return;
   }
 
-  let { error } = await supabase
+  let { error } = await supabaseClient
     .from("jobs")
     .insert([{
       company_name: company,
@@ -147,6 +149,7 @@ async function addJob(){
 
   if(error){
     alert(error.message);
+    console.log(error);
   } else {
     alert("Job Added Successfully");
     window.location.href = "index.html";
