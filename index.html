@@ -85,6 +85,11 @@ button.view{
     <option value="">Select City</option>
   </select>
 
+  <!-- NEW CATEGORY DROPDOWN -->
+  <select id="category" onchange="filterJobs()">
+    <option value="">Select Category</option>
+  </select>
+
 </div>
 
 <div id="jobs"></div>
@@ -103,6 +108,7 @@ window.onload = async function(){
   await loadJobs();
   await loadStates();
   await loadCities();
+  await loadCategories();
 }
 
 /* LOAD JOBS */
@@ -122,33 +128,39 @@ async function loadJobs(){
   showJobs(allJobs);
 }
 
-/* LOAD STATES */
+/* STATES */
 async function loadStates(){
-
-  const { data } = await supabaseClient
-    .from("jobs")
-    .select("state");
-
+  const { data } = await supabaseClient.from("jobs").select("state");
   let box = document.getElementById("state");
+
   let unique = [...new Set((data || []).map(i => i.state).filter(Boolean))];
 
-  unique.forEach(s=>{
-    box.innerHTML += `<option value="${s}">${s}</option>`;
+  unique.forEach(v=>{
+    box.innerHTML += `<option value="${v}">${v}</option>`;
   });
 }
 
-/* LOAD CITIES */
+/* CITIES */
 async function loadCities(){
-
-  const { data } = await supabaseClient
-    .from("jobs")
-    .select("city");
-
+  const { data } = await supabaseClient.from("jobs").select("city");
   let box = document.getElementById("city");
+
   let unique = [...new Set((data || []).map(i => i.city).filter(Boolean))];
 
-  unique.forEach(c=>{
-    box.innerHTML += `<option value="${c}">${c}</option>`;
+  unique.forEach(v=>{
+    box.innerHTML += `<option value="${v}">${v}</option>`;
+  });
+}
+
+/* CATEGORY */
+async function loadCategories(){
+  const { data } = await supabaseClient.from("jobs").select("category");
+  let box = document.getElementById("category");
+
+  let unique = [...new Set((data || []).map(i => i.category).filter(Boolean))];
+
+  unique.forEach(v=>{
+    box.innerHTML += `<option value="${v}">${v}</option>`;
   });
 }
 
@@ -157,10 +169,12 @@ function filterJobs(){
 
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
+  let category = document.getElementById("category").value;
 
   let filtered = allJobs.filter(j =>
     (!state || j.state === state) &&
-    (!city || j.city === city)
+    (!city || j.city === city) &&
+    (!category || j.category === category)
   );
 
   showJobs(filtered);
