@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Portal</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#eef2f7;
+}
+
+.header{
+  background:linear-gradient(135deg,#1e88e5,#1565c0);
+  color:white;
+  padding:18px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* BUTTONS */
+.top-btns{
+  padding:10px;
+  display:flex;
+  gap:10px;
+}
+
+.top-btns button{
+  flex:1;
+  padding:12px;
+  border:none;
+  color:white;
+  font-weight:bold;
+  border-radius:10px;
+}
+
+.add{ background:#4caf50; }
+.admin{ background:#ff9800; }
+
+/* DROPDOWNS */
+.box{
+  padding:10px;
+}
+
+.row{
+  display:flex;
+  gap:10px;
+  margin-top:8px;
+}
+
+select{
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  background:white;
+}
+
+/* CARD */
+.card{
+  background:white;
+  margin:12px;
+  padding:12px;
+  border-radius:15px;
+}
+
+.card img{
+  width:100%;
+  height:170px;
+  object-fit:cover;
+  border-radius:12px;
+}
+
+.tag{
+  display:inline-block;
+  padding:4px 10px;
+  background:#e3f2fd;
+  color:#1976d2;
+  border-radius:20px;
+  font-size:12px;
+  margin:3px;
+}
+
+button.view{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  background:#1e88e5;
+  color:white;
+  border:none;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">🚀 Job Finder</div>
+
+<!-- BUTTONS -->
+<div class="top-btns">
+
+  <button class="add" onclick="window.location.href='adjob.html'">
+    ➕ Add Job
+  </button>
+
+  <button class="admin" onclick="window.location.href='admin.html'">
+    🔐 Admin Panel
+  </button>
+
+</div>
+
+<!-- DROPDOWNS (4 BUTTONS) -->
+<div class="box">
+
+  <div class="row">
+    <select id="state" onchange="loadJobs()">
+      <option value="">State</option>
+    </select>
+
+    <select id="city" onchange="loadJobs()">
+      <option value="">City</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <select id="jobtype" onchange="loadJobs()">
+      <option value="">Job Type</option>
+    </select>
+
+    <select id="education" onchange="loadJobs()">
+      <option value="">Education</option>
+    </select>
+  </div>
+
+</div>
+
+<div id="jobs"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+window.onload = async function(){
+  await loadStates();
+  await loadCities();
+  await loadJobs();
+}
+
+/* STATES */
+async function loadStates(){
+  let { data } = await supabase.from("jobs").select("state");
+  let box = document.getElementById("state");
+  let unique = [...new Set((data||[]).map(i=>i.state))];
+
+  unique.forEach(v=>{
+    if(v) box.innerHTML += `<option>${v}</option>`;
+  });
+}
+
+/* CITIES */
+async function loadCities(){
+  let { data } = await supabase.from("jobs").select("city");
+  let box = document.getElementById("city");
+  let unique = [...new Set((data||[]).map(i=>i.city))];
+
+  unique.forEach(v=>{
+    if(v) box.innerHTML += `<option>${v}</option>`;
+  });
+}
+
+/* JOBS */
+async function loadJobs(){
+
+  let { data } = await supabase
+    .from("jobs")
+    .select("*")
+    .order("id",{ascending:false});
+
+  showJobs(data||[]);
+}
+
+/* SHOW JOBS */
+function showJobs(data){
+
+  let box = document.getElementById("jobs");
+  box.innerHTML = "";
+
+  data.forEach(j => {
+
+    box.innerHTML += `
+      <div class="card">
+        <img src="${j.image_url || 'https://via.placeholder.com/300'}">
+
+        <h3>${j.company_name}</h3>
+
+        <span class="tag">${j.category}</span>
+        <span class="tag">${j.qualification}</span>
+
+        <p>${j.city} | ${j.state}</p>
+
+        <a href="job.html?id=${j.id}">
+          <button class="view">View Details</button>
+        </a>
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
