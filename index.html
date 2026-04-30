@@ -26,19 +26,19 @@ body{
   padding:12px;
 }
 
-/* 2 COLUMN ROW */
+/* 2 IN ONE ROW */
 .row{
   display:flex;
   gap:10px;
   margin-bottom:10px;
 }
 
-/* DROPDOWN STYLE */
+/* SELECT STYLE */
 select{
   flex:1;
   padding:12px;
   border-radius:12px;
-  border:1px solid #d0d0d0;
+  border:1px solid #ccc;
   background:white;
   font-size:14px;
   outline:none;
@@ -50,7 +50,6 @@ select{
   margin:12px;
   padding:12px;
   border-radius:15px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
 
 .card img{
@@ -128,6 +127,7 @@ let allJobs = [];
 window.onload = async function(){
   await loadJobs();
   await loadStates();
+  await loadCities();
   await loadCategories();
   await loadQualifications();
 }
@@ -151,7 +151,7 @@ async function loadStates(){
   });
 }
 
-/* CITY (depends on state) */
+/* CITY (state dependent) */
 async function loadCities(){
   let state = document.getElementById("state").value;
 
