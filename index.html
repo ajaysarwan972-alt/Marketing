@@ -8,77 +8,164 @@
 body{
   margin:0;
   font-family:Arial;
-  background:#f2f4f8;
+  background:#eef2f7;
 }
 
+/* HEADER */
 .header{
-  background:#1e88e5;
+  background:linear-gradient(135deg,#1e88e5,#1565c0);
   color:white;
-  padding:15px;
+  padding:18px;
   text-align:center;
-  font-size:20px;
+  font-size:22px;
   font-weight:bold;
+  letter-spacing:1px;
 }
 
+/* BANNER */
+.banner img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+}
+
+/* ADMIN */
+.admin{
+  padding:10px;
+}
+.admin button{
+  width:100%;
+  padding:12px;
+  background:#ff9800;
+  border:none;
+  color:white;
+  font-weight:bold;
+  border-radius:10px;
+}
+
+/* FILTER BOX */
 .box{
   padding:10px;
 }
 
 select{
   width:100%;
-  padding:10px;
+  padding:12px;
   margin-top:8px;
-  border-radius:8px;
-  border:1px solid #ddd;
+  border-radius:10px;
+  border:1px solid #ccc;
+  background:white;
+  font-size:14px;
 }
 
+/* FILTER ROW */
+.row{
+  display:flex;
+  gap:10px;
+}
+
+/* CARD */
 .card{
   background:white;
-  margin:10px;
-  padding:10px;
-  border-radius:10px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  margin:12px;
+  padding:12px;
+  border-radius:15px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:scale(1.02);
 }
 
 .card img{
   width:100%;
-  height:160px;
+  height:170px;
   object-fit:cover;
-  border-radius:10px;
+  border-radius:12px;
 }
 
-button{
+.card h3{
+  margin:8px 0 5px 0;
+  color:#333;
+}
+
+.tag{
+  display:inline-block;
+  padding:4px 10px;
+  background:#e3f2fd;
+  color:#1976d2;
+  border-radius:20px;
+  font-size:12px;
+  margin:3px 3px 0 0;
+}
+
+button.view{
   width:100%;
   padding:10px;
-  margin-top:8px;
+  margin-top:10px;
   background:#1e88e5;
   color:white;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
+  font-weight:bold;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">📌 Job Portal</div>
+<div class="header">🚀 Job Finder</div>
+
+<div class="banner">
+  <img src="banner.jpg">
+</div>
+
+<div class="admin">
+  <a href="admin.html">
+    <button>🔐 Admin Panel</button>
+  </a>
+</div>
 
 <div class="box">
 
-<select id="state" onchange="loadJobs()">
-  <option value="">State Select</option>
-  <option>Haryana</option>
-  <option>Delhi</option>
-  <option>UP</option>
-</select>
+<!-- ROW 1 -->
+<div class="row">
+  <select id="state" onchange="loadJobs()">
+    <option value="">State</option>
+    <option>Haryana</option>
+    <option>Delhi</option>
+    <option>UP</option>
+  </select>
 
-<select id="city" onchange="loadJobs()">
-  <option value="">City Select</option>
-  <option>Ambala</option>
-  <option>Gurgaon</option>
-  <option>Delhi</option>
-  <option>Lucknow</option>
-</select>
+  <select id="city" onchange="loadJobs()">
+    <option value="">City</option>
+    <option>Ambala</option>
+    <option>Gurgaon</option>
+    <option>Delhi</option>
+    <option>Lucknow</option>
+  </select>
+</div>
+
+<!-- ROW 2 -->
+<div class="row">
+  <select id="jobtype" onchange="loadJobs()">
+    <option value="">Job Type</option>
+    <option>Helper</option>
+    <option>Driver</option>
+    <option>Accountant</option>
+    <option>Security</option>
+  </select>
+
+  <select id="education" onchange="loadJobs()">
+    <option value="">Education</option>
+    <option>10th Pass</option>
+    <option>12th Pass</option>
+    <option>ITI</option>
+    <option>Diploma</option>
+    <option>Graduate</option>
+  </select>
+</div>
 
 </div>
 
@@ -89,59 +176,57 @@ button{
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "sb_publishable--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
-
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// LOAD JOBS
 async function loadJobs(){
 
-  let { data, error } = await supabase
+  let { data } = await supabase
     .from("jobs")
     .select("*")
-    .order("created_at", { ascending:false });
-
-  if(error){
-    console.log(error);
-    return;
-  }
+    .order("created_at",{ascending:false});
 
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
+  let jobtype = document.getElementById("jobtype").value;
+  let education = document.getElementById("education").value;
 
-  let filtered = data.filter(job =>
-    (state === "" || job.state === state) &&
-    (city === "" || job.city === city)
+  let filtered = data.filter(j =>
+    (state==""||j.state==state) &&
+    (city==""||j.city==city) &&
+    (jobtype==""||j.category==jobtype) &&
+    (education==""||j.qualification==education)
   );
 
   showJobs(filtered);
 }
 
-// SHOW CARDS
 function showJobs(data){
 
   let box = document.getElementById("jobs");
-  box.innerHTML = "";
+  box.innerHTML="";
 
-  data.forEach(job => {
+  data.forEach(j=>{
 
-    box.innerHTML += `
+    box.innerHTML+=`
       <div class="card">
-        <img src="${job.image_url || 'https://via.placeholder.com/300'}">
-        <h3>${job.company_name}</h3>
-        <p><b>${job.title}</b></p>
-        <p>${job.city} | ${job.state}</p>
+        <img src="${j.image_url || 'https://via.placeholder.com/300'}">
+        
+        <h3>${j.company_name}</h3>
 
-        <a href="job.html?id=${job.id}">
-          <button>View Details</button>
+        <span class="tag">${j.category}</span>
+        <span class="tag">${j.qualification}</span>
+
+        <p>${j.city} | ${j.state}</p>
+
+        <a href="job.html?id=${j.id}">
+          <button class="view">View Details</button>
         </a>
       </div>
     `;
   });
 }
 
-// INIT
 loadJobs();
-
 </script>
 
 </body>
