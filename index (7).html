@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Portal</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#eef2f7;
+}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#1e88e5,#1565c0);
+  color:white;
+  padding:18px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* 🔥 NEW BUTTON AREA */
+.top-btn{
+  padding:12px;
+}
+
+.top-btn button{
+  width:100%;
+  padding:12px;
+  background:#ff9800;
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-size:15px;
+  font-weight:bold;
+}
+
+/* BOX */
+.box{
+  padding:12px;
+}
+
+/* 2 IN ONE ROW ONLY */
+.row{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+/* SELECT */
+select{
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  background:white;
+}
+
+/* CARD */
+.card{
+  background:white;
+  margin:12px;
+  padding:12px;
+  border-radius:15px;
+}
+
+.card img{
+  width:100%;
+  height:170px;
+  object-fit:cover;
+  border-radius:12px;
+}
+
+.tag{
+  display:inline-block;
+  padding:4px 10px;
+  background:#e3f2fd;
+  color:#1976d2;
+  border-radius:20px;
+  font-size:12px;
+  margin:3px;
+}
+
+button.view{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  background:#1e88e5;
+  color:white;
+  border:none;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">🚀 Job Finder</div>
+
+<!-- 🔥 ADMIN BUTTON ADDED ONLY -->
+<div class="top-btn">
+  <button onclick="window.location.href='admin.html'">
+    ➕ Job Add (Admin Panel)
+  </button>
+</div>
+
+<div class="box">
+
+  <!-- ROW 1 -->
+  <div class="row">
+    <select id="state" onchange="filterJobs(); loadCities();">
+      <option value="">Select State</option>
+    </select>
+
+    <select id="city" onchange="filterJobs()">
+      <option value="">Select City</option>
+    </select>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="row">
+    <select id="category" onchange="filterJobs()">
+      <option value="">Select Category</option>
+    </select>
+
+    <select id="qualification" onchange="filterJobs()">
+      <option value="">Select Qualification</option>
+    </select>
+  </div>
+
+</div>
+
+<div id="jobs"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+let allJobs = [];
+
+window.onload = async function(){
+  await loadJobs();
+  await loadStates();
+  await loadCities();
+  await loadCategories();
+  await loadQualifications();
+}
+
+/* JOBS */
+async function loadJobs(){
+
+  const { data, error } = await supabaseClient
+    .from("jobs")
+    .select("*")
+    .order("id", { ascending:false });
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  allJobs = data || [];
+  showJobs(allJobs);
+}
+
+/* STATES */
+async function loadStates(){
+  const { data } = await supabaseClient.from("jobs").select("state");
+
+  let box = document.getElementById("state");
+  let unique = [...new Set((data || []).map(i => i.state).filter(Boolean))];
+
+  unique.forEach(v=>{
+    box.innerHTML += `<option value="${v}">${v}</option>`;
+  });
+}
+
+/* CITIES */
+async function loadCities(){
+
+  let state = document.getElementById("state").value;
+
+  let query = supabaseClient.from("jobs").select("city, state");
+
+  if(state){
+    query = query.eq("state", state);
+  }
+
+  const { data } = await query;
+
+  let box = document.getElementById("city");
+  box.innerHTML = `<option value="">Select City</option>`;
+
+  let unique = [...new Set((data || []).map(i => i.city).filter(Boolean))];
+
+  unique.forEach(v=>{
+    box.innerHTML += `<option value="${v}">${v}</option>`;
+  });
+}
+
+/* CATEGORY */
+async function loadCategories(){
+  const { data } = await supabaseClient.from("jobs").select("category");
+
+  let box = document.getElementById("category");
+  let unique = [...new Set((data || []).map(i => i.category).filter(Boolean))];
+
+  unique.forEach(v=>{
+    box.innerHTML += `<option value="${v}">${v}</option>`;
+  });
+}
+
+/* QUALIFICATION */
+async function loadQualifications(){
+  const { data } = await supabaseClient.from("jobs").select("qualification");
+
+  let box = document.getElementById("qualification");
+  let unique = [...new Set((data || []).map(i => i.qualification).filter(Boolean))];
+
+  unique.forEach(v=>{
+    box.innerHTML += `<option value="${v}">${v}</option>`;
+  });
+}
+
+/* FILTER */
+function filterJobs(){
+
+  let state = document.getElementById("state").value;
+  let city = document.getElementById("city").value;
+  let category = document.getElementById("category").value;
+  let qualification = document.getElementById("qualification").value;
+
+  let filtered = allJobs.filter(j =>
+    (!state || j.state === state) &&
+    (!city || j.city === city) &&
+    (!category || j.category === category) &&
+    (!qualification || j.qualification === qualification)
+  );
+
+  showJobs(filtered);
+}
+
+/* SHOW JOBS */
+function showJobs(data){
+
+  let box = document.getElementById("jobs");
+  box.innerHTML = "";
+
+  data.forEach(j => {
+
+    box.innerHTML += `
+      <div class="card">
+        <img src="${j.image_url || 'https://via.placeholder.com/300'}">
+
+        <h3>${j.company_name || ''}</h3>
+
+        <span class="tag">${j.category || ''}</span>
+        <span class="tag">${j.qualification || ''}</span>
+
+        <p>${j.city || ''} | ${j.state || ''}</p>
+
+        <a href="job.html?id=${j.id}">
+          <button class="view">View Details</button>
+        </a>
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
