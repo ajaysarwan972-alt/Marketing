@@ -55,7 +55,6 @@ body{
   color:white;
   border:none;
   border-radius:10px;
-  font-size:15px;
 }
 </style>
 </head>
@@ -72,26 +71,26 @@ body{
 
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "YOUR_SUPABASE_KEY";
+const supabaseKey = "PASTE_YOUR_ANON_KEY_HERE";
 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-/* GET ID FROM URL */
-const urlParams = new URLSearchParams(window.location.search);
-const jobId = urlParams.get("id");
+/* GET CLICKED JOB (NO MANUAL ID WRITING) */
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
 
 window.onload = loadJob;
 
-/* LOAD SINGLE JOB */
+/* FETCH JOB */
 async function loadJob(){
 
   const { data, error } = await supabase
     .from("jobs")
     .select("*")
-    .eq("id", jobId)
+    .eq("id", id)
     .single();
 
-  if(error){
+  if(error || !data){
     document.getElementById("job").innerHTML = "<h3>Job not found</h3>";
     return;
   }
@@ -115,7 +114,7 @@ function showJob(j){
       <p><b>City:</b> ${j.city || ''}</p>
       <p><b>State:</b> ${j.state || ''}</p>
 
-      <button class="btn" onclick="alert('Apply feature coming soon')">
+      <button class="btn" onclick="alert('Apply system add later')">
         Apply Now
       </button>
 
