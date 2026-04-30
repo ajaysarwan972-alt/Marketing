@@ -20,7 +20,7 @@ body{
   font-weight:bold;
 }
 
-/* BUTTONS */
+/* BUTTONS (ONLY ADMIN NOW) */
 .top-btns{
   padding:10px;
   display:flex;
@@ -34,15 +34,13 @@ body{
   color:white;
   font-weight:bold;
   border-radius:10px;
+  cursor:pointer;
 }
 
-.add{ background:#4caf50; }
 .admin{ background:#ff9800; }
 
 /* DROPDOWNS */
-.box{
-  padding:10px;
-}
+.box{ padding:10px; }
 
 .row{
   display:flex;
@@ -99,38 +97,32 @@ button.view{
 
 <div class="header">🚀 Job Finder</div>
 
-<!-- BUTTONS -->
+<!-- ONLY ADMIN BUTTON -->
 <div class="top-btns">
-
-  <button class="add" onclick="window.location.href='adjob.html'">
-    ➕ Add Job
-  </button>
-
   <button class="admin" onclick="window.location.href='admin.html'">
     🔐 Admin Panel
   </button>
-
 </div>
 
-<!-- DROPDOWNS (4 BUTTONS) -->
+<!-- DROPDOWNS -->
 <div class="box">
 
   <div class="row">
-    <select id="state" onchange="loadJobs()">
+    <select id="state" onchange="filterJobs()">
       <option value="">State</option>
     </select>
 
-    <select id="city" onchange="loadJobs()">
+    <select id="city" onchange="filterJobs()">
       <option value="">City</option>
     </select>
   </div>
 
   <div class="row">
-    <select id="jobtype" onchange="loadJobs()">
+    <select id="jobtype" onchange="filterJobs()">
       <option value="">Job Type</option>
     </select>
 
-    <select id="education" onchange="loadJobs()">
+    <select id="education" onchange="filterJobs()">
       <option value="">Education</option>
     </select>
   </div>
@@ -148,43 +140,63 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+let allJobs = [];
+
 window.onload = async function(){
-  await loadStates();
-  await loadCities();
   await loadJobs();
+  fillDropdowns();
 }
 
-/* STATES */
-async function loadStates(){
-  let { data } = await supabase.from("jobs").select("state");
-  let box = document.getElementById("state");
-  let unique = [...new Set((data||[]).map(i=>i.state))];
-
-  unique.forEach(v=>{
-    if(v) box.innerHTML += `<option>${v}</option>`;
-  });
-}
-
-/* CITIES */
-async function loadCities(){
-  let { data } = await supabase.from("jobs").select("city");
-  let box = document.getElementById("city");
-  let unique = [...new Set((data||[]).map(i=>i.city))];
-
-  unique.forEach(v=>{
-    if(v) box.innerHTML += `<option>${v}</option>`;
-  });
-}
-
-/* JOBS */
+/* LOAD JOBS */
 async function loadJobs(){
 
-  let { data } = await supabase
+  let { data, error } = await supabase
     .from("jobs")
     .select("*")
     .order("id",{ascending:false});
 
-  showJobs(data||[]);
+  if(error){
+    console.log(error);
+    alert("Error loading jobs");
+    return;
+  }
+
+  allJobs = data || [];
+  showJobs(allJobs);
+}
+
+/* FILTER */
+function filterJobs(){
+
+  let state = document.getElementById("state").value;
+  let city = document.getElementById("city").value;
+  let jobtype = document.getElementById("jobtype").value;
+  let education = document.getElementById("education").value;
+
+  let filtered = allJobs.filter(j =>
+    (!state || j.state === state) &&
+    (!city || j.city === city) &&
+    (!jobtype || j.category === jobtype) &&
+    (!education || j.qualification === education)
+  );
+
+  showJobs(filtered);
+}
+
+/* DROPDOWNS */
+function fillDropdowns(){
+
+  fill("state", [...new Set(allJobs.map(j=>j.state).filter(Boolean))]);
+  fill("city", [...new Set(allJobs.map(j=>j.city).filter(Boolean))]);
+  fill("jobtype", [...new Set(allJobs.map(j=>j.category).filter(Boolean))]);
+  fill("education", [...new Set(allJobs.map(j=>j.qualification).filter(Boolean))]);
+}
+
+function fill(id, arr){
+  let box = document.getElementById(id);
+  arr.forEach(v=>{
+    box.innerHTML += `<option value="${v}">${v}</option>`;
+  });
 }
 
 /* SHOW JOBS */
@@ -193,18 +205,23 @@ function showJobs(data){
   let box = document.getElementById("jobs");
   box.innerHTML = "";
 
+  if(!data.length){
+    box.innerHTML = "<p style='text-align:center'>No Jobs Found</p>";
+    return;
+  }
+
   data.forEach(j => {
 
     box.innerHTML += `
       <div class="card">
         <img src="${j.image_url || 'https://via.placeholder.com/300'}">
 
-        <h3>${j.company_name}</h3>
+        <h3>${j.company_name || ''}</h3>
 
-        <span class="tag">${j.category}</span>
-        <span class="tag">${j.qualification}</span>
+        <span class="tag">${j.category || ''}</span>
+        <span class="tag">${j.qualification || ''}</span>
 
-        <p>${j.city} | ${j.state}</p>
+        <p>${j.city || ''} | ${j.state || ''}</p>
 
         <a href="job.html?id=${j.id}">
           <button class="view">View Details</button>
