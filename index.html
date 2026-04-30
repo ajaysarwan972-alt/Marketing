@@ -2,16 +2,15 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Job Portal Filter</title>
+<title>Job Portal</title>
 
 <style>
 body{
-  font-family:Arial;
   margin:0;
+  font-family:Arial;
   background:#f2f4f8;
 }
 
-/* HEADER */
 .header{
   background:#1e88e5;
   color:white;
@@ -21,30 +20,26 @@ body{
   font-weight:bold;
 }
 
-/* BOX */
 .box{
   background:white;
-  margin:15px;
-  padding:15px;
-  border-radius:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  margin:10px;
+  padding:10px;
+  border-radius:10px;
 }
 
-/* INPUTS */
 select, input{
   width:100%;
-  padding:12px;
-  margin-top:10px;
+  padding:10px;
+  margin-top:8px;
   border-radius:8px;
-  border:1px solid #ddd;
+  border:1px solid #ccc;
 }
 
-/* JOB CARD */
 .job{
   background:white;
   margin:10px;
   padding:15px;
-  border-radius:12px;
+  border-radius:10px;
   box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
@@ -62,45 +57,43 @@ button{
 
 <body>
 
-<div class="header">📌 Job Filter System</div>
+<div class="header">📌 Job Portal</div>
 
 <div class="box">
 
-<h3>🔎 Search Job</h3>
 <input type="text" id="search" placeholder="Search job..." onkeyup="filterJobs()">
 
 <!-- STATE -->
 <select id="state" onchange="loadCities(); filterJobs();">
   <option value="">State Select karo</option>
-  <option value="delhi">Delhi</option>
   <option value="haryana">Haryana</option>
+  <option value="delhi">Delhi</option>
   <option value="up">Uttar Pradesh</option>
 </select>
 
 <!-- CITY -->
 <select id="city" onchange="filterJobs()">
-  <option value="">Pehle State select karo</option>
+  <option value="">City Select karo</option>
 </select>
 
 </div>
 
-<!-- JOB LIST -->
 <div id="jobs"></div>
 
 <script>
 
-// STATE → CITY DATA
+// CITY DATA
 const cityData = {
-  delhi: ["New Delhi", "Dwarka", "Rohini", "Saket"],
-  haryana: ["Gurgaon", "Faridabad", "Panipat", "Hisar"],
-  up: ["Lucknow", "Noida", "Kanpur", "Varanasi"]
+  haryana: ["Ambala", "Gurgaon", "Hisar", "Panipat"],
+  delhi: ["New Delhi", "Dwarka", "Rohini"],
+  up: ["Lucknow", "Noida", "Kanpur"]
 };
 
-// JOB DATA
+// JOB DATA (DEMO)
 let jobs = [
-  {title:"Factory Helper", state:"haryana", city:"Gurgaon", phone:"9876543210"},
-  {title:"Account Assistant", state:"delhi", city:"Dwarka", phone:"9123456780"},
-  {title:"Driver Job", state:"up", city:"Lucknow", phone:"9000000000"}
+  {title:"Helper Job", state:"haryana", city:"Ambala", phone:"9876543210"},
+  {title:"Account Job", state:"delhi", city:"Dwarka", phone:"9123456780"},
+  {title:"Driver Job", state:"haryana", city:"Gurgaon", phone:"9000000000"}
 ];
 
 // LOAD CITIES
@@ -114,10 +107,7 @@ function loadCities(){
   if(state === "") return;
 
   cityData[state].forEach(c => {
-    let opt = document.createElement("option");
-    opt.value = c;
-    opt.innerText = c;
-    cityBox.appendChild(opt);
+    cityBox.innerHTML += `<option value="${c}">${c}</option>`;
   });
 
 }
