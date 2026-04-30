@@ -88,11 +88,12 @@ button:active{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 /* 🔥 SUPABASE CONFIG */
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
-/* ⚠️ YAHAN REAL ANON KEY DALNI HAI */
-const supabaseKey = "PASTE_YOUR_ANON_PUBLIC_KEY_HERE";
+/* ✅ YOUR ANON KEY */
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -161,7 +162,7 @@ async function addJob(){
     console.log(error);
     alert(error.message);
   } else {
-    alert("Job Added Successfully");
+    alert("Job Added Successfully 🚀");
     window.location.href = "index.html";
   }
 }
