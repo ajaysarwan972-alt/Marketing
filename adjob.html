@@ -12,16 +12,19 @@ body{
 }
 
 .header{
-  background:#1e88e5;
+  background:linear-gradient(135deg,#1e88e5,#1565c0);
   color:white;
-  padding:15px;
+  padding:18px;
   text-align:center;
   font-size:20px;
   font-weight:bold;
 }
 
 .box{
-  padding:10px;
+  width:90%;
+  max-width:500px;
+  margin:auto;
+  padding:15px;
 }
 
 input, textarea{
@@ -31,6 +34,12 @@ input, textarea{
   border-radius:10px;
   border:1px solid #ccc;
   font-size:14px;
+  outline:none;
+}
+
+textarea{
+  height:100px;
+  resize:none;
 }
 
 button{
@@ -42,11 +51,11 @@ button{
   border:none;
   border-radius:10px;
   font-weight:bold;
+  font-size:15px;
 }
 
-textarea{
-  height:100px;
-  resize:none;
+button:active{
+  transform:scale(0.98);
 }
 </style>
 </head>
@@ -76,17 +85,19 @@ textarea{
 
 </div>
 
+<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "sb_publishable--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
 
-/* FIXED CLIENT NAME */
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* IMAGE UPLOAD */
+/* UPLOAD IMAGE */
 async function uploadImage(file){
+
+  if(!file) return "";
 
   const fileName = Date.now() + "_" + file.name;
 
@@ -96,8 +107,8 @@ async function uploadImage(file){
     .upload(fileName, file);
 
   if(error){
-    alert("Image upload failed");
     console.log(error);
+    alert("Image upload failed");
     return "";
   }
 
@@ -113,11 +124,6 @@ async function uploadImage(file){
 async function addJob(){
 
   let file = document.getElementById("imageFile").files[0];
-  let imageUrl = "";
-
-  if(file){
-    imageUrl = await uploadImage(file);
-  }
 
   let company = document.getElementById("company").value;
   let title = document.getElementById("title").value;
@@ -129,9 +135,11 @@ async function addJob(){
   let phone = document.getElementById("phone").value;
 
   if(!company || !title){
-    alert("Fill required fields");
+    alert("Company & Title required");
     return;
   }
+
+  let imageUrl = await uploadImage(file);
 
   let { error } = await supabaseClient
     .from("jobs")
@@ -148,8 +156,8 @@ async function addJob(){
     }]);
 
   if(error){
-    alert(error.message);
     console.log(error);
+    alert(error.message);
   } else {
     alert("Job Added Successfully");
     window.location.href = "index.html";
