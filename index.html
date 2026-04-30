@@ -20,7 +20,7 @@ body{
   font-weight:bold;
 }
 
-/* DROPDOWN */
+/* DROPDOWNS */
 .box{
   padding:10px;
 }
@@ -74,11 +74,17 @@ button.view{
 
 <div class="header">🚀 Job Finder</div>
 
-<!-- STATE DROPDOWN -->
+<!-- DROPDOWNS -->
 <div class="box">
+
   <select id="state" onchange="filterJobs()">
     <option value="">Select State</option>
   </select>
+
+  <select id="city" onchange="filterJobs()">
+    <option value="">Select City</option>
+  </select>
+
 </div>
 
 <div id="jobs"></div>
@@ -96,6 +102,7 @@ let allJobs = [];
 window.onload = async function(){
   await loadJobs();
   await loadStates();
+  await loadCities();
 }
 
 /* LOAD JOBS */
@@ -123,7 +130,6 @@ async function loadStates(){
     .select("state");
 
   let box = document.getElementById("state");
-
   let unique = [...new Set((data || []).map(i => i.state).filter(Boolean))];
 
   unique.forEach(s=>{
@@ -131,13 +137,30 @@ async function loadStates(){
   });
 }
 
+/* LOAD CITIES */
+async function loadCities(){
+
+  const { data } = await supabaseClient
+    .from("jobs")
+    .select("city");
+
+  let box = document.getElementById("city");
+  let unique = [...new Set((data || []).map(i => i.city).filter(Boolean))];
+
+  unique.forEach(c=>{
+    box.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+}
+
 /* FILTER */
 function filterJobs(){
 
   let state = document.getElementById("state").value;
+  let city = document.getElementById("city").value;
 
   let filtered = allJobs.filter(j =>
-    !state || j.state === state
+    (!state || j.state === state) &&
+    (!city || j.city === city)
   );
 
   showJobs(filtered);
