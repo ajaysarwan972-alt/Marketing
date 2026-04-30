@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Job Portal</title>
+<title>Job Finder</title>
 
 <style>
 body{
@@ -17,21 +17,6 @@ body{
   padding:18px;
   text-align:center;
   font-size:22px;
-  font-weight:bold;
-}
-
-/* ADMIN BUTTON */
-.admin-bar{
-  padding:10px;
-}
-
-.admin-bar button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:#ff9800;
-  color:white;
   font-weight:bold;
 }
 
@@ -78,16 +63,6 @@ select{
   font-size:12px;
   margin:3px;
 }
-
-button.view{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  background:#1e88e5;
-  color:white;
-  border:none;
-  border-radius:10px;
-}
 </style>
 </head>
 
@@ -95,12 +70,6 @@ button.view{
 
 <div class="header">🚀 Job Finder</div>
 
-<!-- ADMIN BUTTON -->
-<div class="admin-bar">
-  <button onclick="window.location.href='admin.html'">🔐 Admin Panel</button>
-</div>
-
-<!-- DROPDOWNS -->
 <div class="box">
 
   <div class="row">
@@ -132,7 +101,7 @@ button.view{
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
-/* ✔ YOUR WORKING KEY */
+/* ✅ YOUR KEY (AS REQUESTED) */
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
@@ -161,10 +130,12 @@ async function loadJobs(){
   renderJobs(allJobs);
 }
 
-/* LOAD FILTERS */
+/* FILTERS */
 async function loadFilters(){
 
-  let { data } = await supabase.from("jobs").select("state,city,category,qualification");
+  let { data } = await supabase
+    .from("jobs")
+    .select("state,city,category,qualification");
 
   if(!data) return;
 
@@ -205,7 +176,7 @@ function renderJobs(data){
   let box = document.getElementById("jobs");
   box.innerHTML = "";
 
-  if(data.length === 0){
+  if(!data.length){
     box.innerHTML = "<p style='text-align:center'>No Jobs Found</p>";
     return;
   }
@@ -220,8 +191,6 @@ function renderJobs(data){
         <span class="tag">${j.qualification || ''}</span>
 
         <p>${j.city || ''} | ${j.state || ''}</p>
-
-        <button class="view">View Details</button>
       </div>
     `;
   });
