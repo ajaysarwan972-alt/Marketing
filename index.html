@@ -21,11 +21,8 @@ body{
   font-weight:bold;
 }
 
-/* 🔥 NEW BUTTON AREA */
-.top-btn{
-  padding:12px;
-}
-
+/* BUTTON */
+.top-btn{padding:12px;}
 .top-btn button{
   width:100%;
   padding:12px;
@@ -38,11 +35,9 @@ body{
 }
 
 /* BOX */
-.box{
-  padding:12px;
-}
+.box{padding:12px;}
 
-/* 2 IN ONE ROW ONLY */
+/* ROW */
 .row{
   display:flex;
   gap:10px;
@@ -99,7 +94,6 @@ button.view{
 
 <div class="header">🚀 Job Finder</div>
 
-<!-- 🔥 ADMIN BUTTON ADDED ONLY -->
 <div class="top-btn">
   <button onclick="window.location.href='admin.html'">
     ➕ Job Add (Admin Panel)
@@ -114,17 +108,24 @@ button.view{
       <option value="">Select State</option>
     </select>
 
-    <select id="city" onchange="filterJobs()">
+    <select id="city" onchange="filterJobs(); loadAreas();">
       <option value="">Select City</option>
     </select>
   </div>
 
   <!-- ROW 2 -->
   <div class="row">
+    <select id="area" onchange="filterJobs()">
+      <option value="">Select Area</option>
+    </select>
+
     <select id="category" onchange="filterJobs()">
       <option value="">Select Category</option>
     </select>
+  </div>
 
+  <!-- ROW 3 -->
+  <div class="row">
     <select id="qualification" onchange="filterJobs()">
       <option value="">Select Qualification</option>
     </select>
@@ -137,10 +138,11 @@ button.view{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 let allJobs = [];
 
@@ -148,33 +150,24 @@ window.onload = async function(){
   await loadJobs();
   await loadStates();
   await loadCities();
+  await loadAreas();
   await loadCategories();
   await loadQualifications();
 }
 
 /* JOBS */
 async function loadJobs(){
-
-  const { data, error } = await supabaseClient
-    .from("jobs")
-    .select("*")
-    .order("id", { ascending:false });
-
-  if(error){
-    console.log(error);
-    return;
-  }
-
+  const { data } = await supabase.from("jobs").select("*").order("id",{ascending:false});
   allJobs = data || [];
   showJobs(allJobs);
 }
 
 /* STATES */
 async function loadStates(){
-  const { data } = await supabaseClient.from("jobs").select("state");
+  const { data } = await supabase.from("jobs").select("state");
 
   let box = document.getElementById("state");
-  let unique = [...new Set((data || []).map(i => i.state).filter(Boolean))];
+  let unique = [...new Set((data||[]).map(i=>i.state).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
@@ -186,18 +179,37 @@ async function loadCities(){
 
   let state = document.getElementById("state").value;
 
-  let query = supabaseClient.from("jobs").select("city, state");
+  let query = supabase.from("jobs").select("city,state");
 
-  if(state){
-    query = query.eq("state", state);
-  }
+  if(state) query = query.eq("state", state);
 
   const { data } = await query;
 
   let box = document.getElementById("city");
   box.innerHTML = `<option value="">Select City</option>`;
 
-  let unique = [...new Set((data || []).map(i => i.city).filter(Boolean))];
+  let unique = [...new Set((data||[]).map(i=>i.city).filter(Boolean))];
+
+  unique.forEach(v=>{
+    box.innerHTML += `<option value="${v}">${v}</option>`;
+  });
+}
+
+/* 🔥 AREAS (CITY DEPENDENT) */
+async function loadAreas(){
+
+  let city = document.getElementById("city").value;
+
+  let query = supabase.from("jobs").select("area,city");
+
+  if(city) query = query.eq("city", city);
+
+  const { data } = await query;
+
+  let box = document.getElementById("area");
+  box.innerHTML = `<option value="">Select Area</option>`;
+
+  let unique = [...new Set((data||[]).map(i=>i.area).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
@@ -206,10 +218,10 @@ async function loadCities(){
 
 /* CATEGORY */
 async function loadCategories(){
-  const { data } = await supabaseClient.from("jobs").select("category");
+  const { data } = await supabase.from("jobs").select("category");
 
   let box = document.getElementById("category");
-  let unique = [...new Set((data || []).map(i => i.category).filter(Boolean))];
+  let unique = [...new Set((data||[]).map(i=>i.category).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
@@ -218,10 +230,10 @@ async function loadCategories(){
 
 /* QUALIFICATION */
 async function loadQualifications(){
-  const { data } = await supabaseClient.from("jobs").select("qualification");
+  const { data } = await supabase.from("jobs").select("qualification");
 
   let box = document.getElementById("qualification");
-  let unique = [...new Set((data || []).map(i => i.qualification).filter(Boolean))];
+  let unique = [...new Set((data||[]).map(i=>i.qualification).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
@@ -233,12 +245,14 @@ function filterJobs(){
 
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
+  let area = document.getElementById("area").value;
   let category = document.getElementById("category").value;
   let qualification = document.getElementById("qualification").value;
 
   let filtered = allJobs.filter(j =>
     (!state || j.state === state) &&
     (!city || j.city === city) &&
+    (!area || j.area === area) &&
     (!category || j.category === category) &&
     (!qualification || j.qualification === qualification)
   );
@@ -252,8 +266,7 @@ function showJobs(data){
   let box = document.getElementById("jobs");
   box.innerHTML = "";
 
-  data.forEach(j => {
-
+  data.forEach(j=>{
     box.innerHTML += `
       <div class="card">
         <img src="${j.image_url || 'https://via.placeholder.com/300'}">
@@ -263,7 +276,7 @@ function showJobs(data){
         <span class="tag">${j.category || ''}</span>
         <span class="tag">${j.qualification || ''}</span>
 
-        <p>${j.city || ''} | ${j.state || ''}</p>
+        <p>${j.city || ''} | ${j.state || ''} | ${j.area || ''}</p>
 
         <a href="job.html?id=${j.id}">
           <button class="view">View Details</button>
@@ -272,6 +285,7 @@ function showJobs(data){
     `;
   });
 }
+
 </script>
 
 </body>
