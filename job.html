@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#eef2f7;
+}
+
+.box{
+  width:90%;
+  max-width:400px;
+  margin:auto;
+  margin-top:80px;
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+
+h2{
+  text-align:center;
+  color:#1e88e5;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:15px;
+  background:#1e88e5;
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+.switch{
+  text-align:center;
+  margin-top:10px;
+  color:#555;
+  cursor:pointer;
+}
+
+/* WhatsApp reset link */
+.reset{
+  text-align:center;
+  margin-top:12px;
+}
+
+.reset a{
+  color:#25D366;
+  font-size:14px;
+  text-decoration:none;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2 id="title">Login</h2>
+
+<input type="text" id="phone" placeholder="Mobile Number">
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="auth()">Login</button>
+
+<div class="switch" onclick="toggle()">
+  Don't have account? Signup
+</div>
+
+<!-- WHATSAPP RESET -->
+<div class="reset">
+  <a href="https://wa.me/919053922906?text=Hi%20I%20want%20to%20reset%20my%20password" target="_blank">
+    Forgot Password? Reset on WhatsApp
+  </a>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseUrl="https://katbdbzoufiblnnsoxkk.supabase.co";
+const supabaseKey="sb_publishable--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
+const supabase=supabase.createClient(supabaseUrl,supabaseKey);
+
+let isLogin=true;
+
+/* TOGGLE LOGIN / SIGNUP */
+function toggle(){
+
+  isLogin=!isLogin;
+
+  document.getElementById("title").innerText=isLogin?"Login":"Signup";
+  document.querySelector("button").innerText=isLogin?"Login":"Signup";
+  document.querySelector(".switch").innerText=isLogin?
+  "Don't have account? Signup":
+  "Already have account? Login";
+}
+
+/* AUTH SYSTEM */
+async function auth(){
+
+  let phone=document.getElementById("phone").value;
+  let password=document.getElementById("password").value;
+
+  if(!phone || !password){
+    alert("Fill all fields");
+    return;
+  }
+
+  if(isLogin){
+
+    let { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("phone",phone)
+      .eq("password",password)
+      .single();
+
+    if(error || !data){
+      alert("Invalid login");
+    }else{
+      alert("Login Success");
+
+      localStorage.setItem("user",phone);
+
+      // 👉 DIRECT ADJOB PAGE OPEN
+      window.location.href="adjob.html";
+    }
+
+  } else {
+
+    let { error } = await supabase
+      .from("users")
+      .insert([{
+        phone:phone,
+        password:password
+      }]);
+
+    if(error){
+      alert(error.message);
+    }else{
+      alert("Signup Success");
+      toggle();
+    }
+  }
+}
+</script>
+
+</body>
+</html>
