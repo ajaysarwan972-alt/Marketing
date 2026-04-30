@@ -20,7 +20,7 @@ body{
   font-weight:bold;
 }
 
-/* TOP BUTTONS */
+/* BUTTONS */
 .top-btns{
   padding:10px;
   display:flex;
@@ -34,15 +34,28 @@ body{
   color:white;
   font-weight:bold;
   border-radius:10px;
-  cursor:pointer;
 }
 
-.add{
-  background:#4caf50;
+.add{ background:#4caf50; }
+.admin{ background:#ff9800; }
+
+/* DROPDOWNS */
+.box{
+  padding:10px;
 }
 
-.admin{
-  background:#ff9800;
+.row{
+  display:flex;
+  gap:10px;
+  margin-top:8px;
+}
+
+select{
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  background:white;
 }
 
 /* CARD */
@@ -99,9 +112,33 @@ button.view{
 
 </div>
 
+<!-- DROPDOWNS (4 BUTTONS) -->
+<div class="box">
+
+  <div class="row">
+    <select id="state" onchange="loadJobs()">
+      <option value="">State</option>
+    </select>
+
+    <select id="city" onchange="loadJobs()">
+      <option value="">City</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <select id="jobtype" onchange="loadJobs()">
+      <option value="">Job Type</option>
+    </select>
+
+    <select id="education" onchange="loadJobs()">
+      <option value="">Education</option>
+    </select>
+  </div>
+
+</div>
+
 <div id="jobs"></div>
 
-<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -109,25 +146,45 @@ const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-window.onload = loadJobs;
+window.onload = async function(){
+  await loadStates();
+  await loadCities();
+  await loadJobs();
+}
 
-/* LOAD JOBS */
+/* STATES */
+async function loadStates(){
+  let { data } = await supabase.from("jobs").select("state");
+  let box = document.getElementById("state");
+  let unique = [...new Set((data||[]).map(i=>i.state))];
+
+  unique.forEach(v=>{
+    if(v) box.innerHTML += `<option>${v}</option>`;
+  });
+}
+
+/* CITIES */
+async function loadCities(){
+  let { data } = await supabase.from("jobs").select("city");
+  let box = document.getElementById("city");
+  let unique = [...new Set((data||[]).map(i=>i.city))];
+
+  unique.forEach(v=>{
+    if(v) box.innerHTML += `<option>${v}</option>`;
+  });
+}
+
+/* JOBS */
 async function loadJobs(){
 
-  const { data, error } = await supabaseClient
+  let { data } = await supabase
     .from("jobs")
     .select("*")
-    .order("id", { ascending:false });
+    .order("id",{ascending:false});
 
-  if(error){
-    console.log("ERROR:", error);
-    alert("Data load failed ❌");
-    return;
-  }
-
-  showJobs(data || []);
+  showJobs(data||[]);
 }
 
 /* SHOW JOBS */
@@ -142,12 +199,12 @@ function showJobs(data){
       <div class="card">
         <img src="${j.image_url || 'https://via.placeholder.com/300'}">
 
-        <h3>${j.company_name || ''}</h3>
+        <h3>${j.company_name}</h3>
 
-        <span class="tag">${j.category || ''}</span>
-        <span class="tag">${j.qualification || ''}</span>
+        <span class="tag">${j.category}</span>
+        <span class="tag">${j.qualification}</span>
 
-        <p>${j.city || ''} | ${j.state || ''}</p>
+        <p>${j.city} | ${j.state}</p>
 
         <a href="job.html?id=${j.id}">
           <button class="view">View Details</button>
