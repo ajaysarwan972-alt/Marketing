@@ -20,6 +20,32 @@ body{
   font-weight:bold;
 }
 
+/* TOP BUTTONS */
+.top-btns{
+  padding:10px;
+  display:flex;
+  gap:10px;
+}
+
+.top-btns button{
+  flex:1;
+  padding:12px;
+  border:none;
+  color:white;
+  font-weight:bold;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.add{
+  background:#4caf50;
+}
+
+.admin{
+  background:#ff9800;
+}
+
+/* CARD */
 .card{
   background:white;
   margin:12px;
@@ -60,14 +86,27 @@ button.view{
 
 <div class="header">🚀 Job Finder</div>
 
+<!-- BUTTONS -->
+<div class="top-btns">
+
+  <button class="add" onclick="window.location.href='adjob.html'">
+    ➕ Add Job
+  </button>
+
+  <button class="admin" onclick="window.location.href='admin.html'">
+    🔐 Admin Panel
+  </button>
+
+</div>
+
 <div id="jobs"></div>
 
+<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
-/* ✅ YOUR REAL ANON KEY */
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -84,7 +123,7 @@ async function loadJobs(){
 
   if(error){
     console.log("ERROR:", error);
-    alert("Data load failed");
+    alert("Data load failed ❌");
     return;
   }
 
