@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Job Finder</title>
+<title>Job Portal</title>
 
 <style>
 body{
@@ -12,7 +12,7 @@ body{
 }
 
 .header{
-  background:#1e88e5;
+  background:linear-gradient(135deg,#1e88e5,#1565c0);
   color:white;
   padding:18px;
   text-align:center;
@@ -20,26 +20,6 @@ body{
   font-weight:bold;
 }
 
-/* DROPDOWNS */
-.box{
-  padding:10px;
-}
-
-.row{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-
-select{
-  flex:1;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  background:white;
-}
-
-/* CARD */
 .card{
   background:white;
   margin:12px;
@@ -63,36 +43,22 @@ select{
   font-size:12px;
   margin:3px;
 }
+
+button.view{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  background:#1e88e5;
+  color:white;
+  border:none;
+  border-radius:10px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="header">🚀 Job Finder</div>
-
-<div class="box">
-
-  <div class="row">
-    <select id="state" onchange="filterJobs()">
-      <option value="">State</option>
-    </select>
-
-    <select id="city" onchange="filterJobs()">
-      <option value="">City</option>
-    </select>
-  </div>
-
-  <div class="row">
-    <select id="jobtype" onchange="filterJobs()">
-      <option value="">Job Type</option>
-    </select>
-
-    <select id="education" onchange="filterJobs()">
-      <option value="">Education</option>
-    </select>
-  </div>
-
-</div>
 
 <div id="jobs"></div>
 
@@ -101,96 +67,52 @@ select{
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
-/* ✅ YOUR KEY (AS REQUESTED) */
+/* ✅ YOUR REAL ANON KEY */
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-let allJobs = [];
-
-window.onload = async function(){
-  await loadJobs();
-  await loadFilters();
-}
+window.onload = loadJobs;
 
 /* LOAD JOBS */
 async function loadJobs(){
 
-  let { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("jobs")
     .select("*")
-    .order("id",{ascending:false});
+    .order("id", { ascending:false });
 
   if(error){
-    console.log(error);
+    console.log("ERROR:", error);
+    alert("Data load failed");
     return;
   }
 
-  allJobs = data || [];
-  renderJobs(allJobs);
-}
-
-/* FILTERS */
-async function loadFilters(){
-
-  let { data } = await supabase
-    .from("jobs")
-    .select("state,city,category,qualification");
-
-  if(!data) return;
-
-  fill("state",[...new Set(data.map(i=>i.state).filter(Boolean))]);
-  fill("city",[...new Set(data.map(i=>i.city).filter(Boolean))]);
-  fill("jobtype",[...new Set(data.map(i=>i.category).filter(Boolean))]);
-  fill("education",[...new Set(data.map(i=>i.qualification).filter(Boolean))]);
-}
-
-function fill(id, arr){
-  let box = document.getElementById(id);
-  arr.forEach(v=>{
-    box.innerHTML += `<option value="${v}">${v}</option>`;
-  });
-}
-
-/* FILTER FUNCTION */
-function filterJobs(){
-
-  let state = document.getElementById("state").value;
-  let city = document.getElementById("city").value;
-  let jobtype = document.getElementById("jobtype").value;
-  let education = document.getElementById("education").value;
-
-  let filtered = allJobs.filter(j =>
-    (!state || j.state == state) &&
-    (!city || j.city == city) &&
-    (!jobtype || j.category == jobtype) &&
-    (!education || j.qualification == education)
-  );
-
-  renderJobs(filtered);
+  showJobs(data || []);
 }
 
 /* SHOW JOBS */
-function renderJobs(data){
+function showJobs(data){
 
   let box = document.getElementById("jobs");
   box.innerHTML = "";
 
-  if(!data.length){
-    box.innerHTML = "<p style='text-align:center'>No Jobs Found</p>";
-    return;
-  }
+  data.forEach(j => {
 
-  data.forEach(j=>{
     box.innerHTML += `
       <div class="card">
         <img src="${j.image_url || 'https://via.placeholder.com/300'}">
+
         <h3>${j.company_name || ''}</h3>
 
         <span class="tag">${j.category || ''}</span>
         <span class="tag">${j.qualification || ''}</span>
 
         <p>${j.city || ''} | ${j.state || ''}</p>
+
+        <a href="job.html?id=${j.id}">
+          <button class="view">View Details</button>
+        </a>
       </div>
     `;
   });
