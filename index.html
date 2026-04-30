@@ -27,12 +27,11 @@ body{
   border-radius:10px;
 }
 
-select, input{
+select{
   width:100%;
   padding:10px;
   margin-top:8px;
   border-radius:8px;
-  border:1px solid #ccc;
 }
 
 .job{
@@ -41,6 +40,16 @@ select, input{
   padding:15px;
   border-radius:10px;
   box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* CATEGORY CHECKBOX */
+.cat{
+  margin-top:10px;
+}
+
+.cat label{
+  display:block;
+  margin:5px 0;
 }
 
 button{
@@ -61,14 +70,12 @@ button{
 
 <div class="box">
 
-<input type="text" id="search" placeholder="Search job..." onkeyup="filterJobs()">
-
 <!-- STATE -->
 <select id="state" onchange="loadCities(); filterJobs();">
   <option value="">State Select karo</option>
   <option value="haryana">Haryana</option>
   <option value="delhi">Delhi</option>
-  <option value="up">Uttar Pradesh</option>
+  <option value="up">UP</option>
 </select>
 
 <!-- CITY -->
@@ -76,24 +83,66 @@ button{
   <option value="">City Select karo</option>
 </select>
 
+<!-- QUALIFICATION -->
+<select id="qualification" onchange="filterJobs()">
+  <option value="">Qualification</option>
+  <option>10th Pass</option>
+  <option>12th Pass</option>
+  <option>ITI</option>
+  <option>Diploma</option>
+  <option>Graduate</option>
+</select>
+
+<!-- CATEGORY (MULTI SELECT) -->
+<div class="cat">
+  <b>Job Category</b><br>
+
+  <label><input type="checkbox" value="Helper" onchange="filterJobs()"> Helper</label>
+  <label><input type="checkbox" value="Driver" onchange="filterJobs()"> Driver</label>
+  <label><input type="checkbox" value="Accountant" onchange="filterJobs()"> Accountant</label>
+  <label><input type="checkbox" value="Security" onchange="filterJobs()"> Security</label>
 </div>
 
+</div>
+
+<!-- JOB LIST -->
 <div id="jobs"></div>
 
 <script>
 
 // CITY DATA
 const cityData = {
-  haryana: ["Ambala", "Gurgaon", "Hisar", "Panipat"],
-  delhi: ["New Delhi", "Dwarka", "Rohini"],
-  up: ["Lucknow", "Noida", "Kanpur"]
+  haryana: ["Ambala", "Gurgaon", "Hisar"],
+  delhi: ["New Delhi", "Dwarka"],
+  up: ["Lucknow", "Noida"]
 };
 
 // JOB DATA (DEMO)
 let jobs = [
-  {title:"Helper Job", state:"haryana", city:"Ambala", phone:"9876543210"},
-  {title:"Account Job", state:"delhi", city:"Dwarka", phone:"9123456780"},
-  {title:"Driver Job", state:"haryana", city:"Gurgaon", phone:"9000000000"}
+  {
+    title:"Helper Job",
+    state:"haryana",
+    city:"Ambala",
+    category:"Helper",
+    qualification:"10th Pass",
+    phone:"9876543210"
+  },
+  {
+    title:"Account Job",
+    state:"delhi",
+    city:"Dwarka",
+    category:"Accountant",
+    qualification:"Graduate",
+    phone:"9123456780"
+  },
+  {
+    title:"Driver Job",
+    state:"haryana",
+    city:"Gurgaon",
+    category:"Driver",
+    qualification:"10th Pass",
+    phone:"9000000000"
+  }
 ];
 
 // LOAD CITIES
@@ -106,10 +155,18 @@ function loadCities(){
 
   if(state === "") return;
 
-  cityData[state].forEach(c => {
+  cityData[state].forEach(c=>{
     cityBox.innerHTML += `<option value="${c}">${c}</option>`;
   });
 
+}
+
+// GET SELECTED CATEGORIES
+function getCategories(){
+  let checked = document.querySelectorAll(".cat input:checked");
+  let arr = [];
+  checked.forEach(c => arr.push(c.value));
+  return arr;
 }
 
 // SHOW JOBS
@@ -118,11 +175,12 @@ function show(data){
   let box = document.getElementById("jobs");
   box.innerHTML = "";
 
-  data.forEach(j => {
+  data.forEach(j=>{
     box.innerHTML += `
       <div class="job">
         <h3>${j.title}</h3>
-        <p>📍 ${j.state.toUpperCase()} - ${j.city}</p>
+        <p>📍 ${j.state} - ${j.city}</p>
+        <p>🧑 ${j.category} | 🎓 ${j.qualification}</p>
 
         <a href="tel:${j.phone}">
           <button>📞 Call HR</button>
@@ -136,15 +194,23 @@ function show(data){
 // FILTER SYSTEM
 function filterJobs(){
 
-  let search = document.getElementById("search").value.toLowerCase();
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
+  let qualification = document.getElementById("qualification").value;
+  let categories = getCategories();
 
-  let filtered = jobs.filter(j =>
-    j.title.toLowerCase().includes(search) &&
-    (state === "" || j.state === state) &&
-    (city === "" || j.city === city)
-  );
+  let filtered = jobs.filter(j=>{
+
+    let catMatch = categories.length === 0 || categories.includes(j.category);
+
+    return (
+      (state === "" || j.state === state) &&
+      (city === "" || j.city === city) &&
+      (qualification === "" || j.qualification === qualification) &&
+      catMatch
+    );
+
+  });
 
   show(filtered);
 }
