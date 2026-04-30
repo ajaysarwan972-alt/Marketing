@@ -77,7 +77,7 @@ button.view{
 <!-- DROPDOWNS -->
 <div class="box">
 
-  <select id="state" onchange="filterJobs()">
+  <select id="state" onchange="filterJobs(); loadCities();">
     <option value="">Select State</option>
   </select>
 
@@ -97,7 +97,7 @@ button.view{
 
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "YOUR_SUPABASE_ANON_KEY"; // 👈 यहां अपनी key डालना
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -129,7 +129,6 @@ async function loadJobs(){
 
 /* STATES */
 async function loadStates(){
-
   const { data } = await supabaseClient.from("jobs").select("state");
 
   let box = document.getElementById("state");
@@ -140,7 +139,7 @@ async function loadStates(){
   });
 }
 
-/* CITIES (STATE FILTER BASED) */
+/* 🔥 CITY FILTER ONLY BY SELECTED STATE */
 async function loadCities(){
 
   let state = document.getElementById("state").value;
@@ -165,11 +164,9 @@ async function loadCities(){
 
 /* CATEGORY */
 async function loadCategories(){
-
   const { data } = await supabaseClient.from("jobs").select("category");
 
   let box = document.getElementById("category");
-
   let unique = [...new Set((data || []).map(i => i.category).filter(Boolean))];
 
   unique.forEach(v=>{
@@ -179,8 +176,6 @@ async function loadCategories(){
 
 /* FILTER */
 function filterJobs(){
-
-  loadCities(); // refresh city list based on state
 
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
