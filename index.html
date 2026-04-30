@@ -19,13 +19,12 @@ body{
   text-align:center;
   font-size:22px;
   font-weight:bold;
-  letter-spacing:1px;
 }
 
 /* BANNER */
 .banner img{
   width:100%;
-  height:160px;
+  height:150px;
   object-fit:cover;
 }
 
@@ -43,25 +42,23 @@ body{
   border-radius:10px;
 }
 
-/* FILTER BOX */
+/* FILTER */
 .box{
   padding:10px;
 }
 
-select{
-  width:100%;
-  padding:12px;
-  margin-top:8px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  background:white;
-  font-size:14px;
-}
-
-/* FILTER ROW */
 .row{
   display:flex;
   gap:10px;
+  margin-top:8px;
+}
+
+select{
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  background:white;
 }
 
 /* CARD */
@@ -71,11 +68,6 @@ select{
   padding:12px;
   border-radius:15px;
   box-shadow:0 4px 12px rgba(0,0,0,0.08);
-  transition:0.3s;
-}
-
-.card:hover{
-  transform:scale(1.02);
 }
 
 .card img{
@@ -85,11 +77,6 @@ select{
   border-radius:12px;
 }
 
-.card h3{
-  margin:8px 0 5px 0;
-  color:#333;
-}
-
 .tag{
   display:inline-block;
   padding:4px 10px;
@@ -97,7 +84,7 @@ select{
   color:#1976d2;
   border-radius:20px;
   font-size:12px;
-  margin:3px 3px 0 0;
+  margin:3px;
 }
 
 button.view{
@@ -129,41 +116,25 @@ button.view{
 
 <div class="box">
 
-<!-- ROW 1 -->
+<!-- STATE + CITY -->
 <div class="row">
   <select id="state" onchange="loadJobs()">
     <option value="">State</option>
-    <option>Haryana</option>
-    <option>Delhi</option>
-    <option>UP</option>
   </select>
 
   <select id="city" onchange="loadJobs()">
     <option value="">City</option>
-    <option>Ambala</option>
-    <option>Gurgaon</option>
-    <option>Delhi</option>
-    <option>Lucknow</option>
   </select>
 </div>
 
-<!-- ROW 2 -->
+<!-- JOB TYPE + EDUCATION -->
 <div class="row">
   <select id="jobtype" onchange="loadJobs()">
     <option value="">Job Type</option>
-    <option>Helper</option>
-    <option>Driver</option>
-    <option>Accountant</option>
-    <option>Security</option>
   </select>
 
   <select id="education" onchange="loadJobs()">
     <option value="">Education</option>
-    <option>10th Pass</option>
-    <option>12th Pass</option>
-    <option>ITI</option>
-    <option>Diploma</option>
-    <option>Graduate</option>
   </select>
 </div>
 
@@ -178,6 +149,54 @@ const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "sb_publishable--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+/* INIT */
+loadStates();
+loadCities();
+loadJobTypes();
+loadEducation();
+loadJobs();
+
+/* AUTO STATES */
+async function loadStates(){
+  let { data } = await supabase.from("jobs").select("state");
+  let unique = [...new Set(data.map(j=>j.state))];
+  let box = document.getElementById("state");
+  unique.forEach(v=>{
+    box.innerHTML += `<option>${v}</option>`;
+  });
+}
+
+/* AUTO CITIES */
+async function loadCities(){
+  let { data } = await supabase.from("jobs").select("city");
+  let unique = [...new Set(data.map(j=>j.city))];
+  let box = document.getElementById("city");
+  unique.forEach(v=>{
+    box.innerHTML += `<option>${v}</option>`;
+  });
+}
+
+/* AUTO JOB TYPE */
+async function loadJobTypes(){
+  let { data } = await supabase.from("jobs").select("category");
+  let unique = [...new Set(data.map(j=>j.category))];
+  let box = document.getElementById("jobtype");
+  unique.forEach(v=>{
+    box.innerHTML += `<option>${v}</option>`;
+  });
+}
+
+/* AUTO EDUCATION */
+async function loadEducation(){
+  let { data } = await supabase.from("jobs").select("qualification");
+  let unique = [...new Set(data.map(j=>j.qualification))];
+  let box = document.getElementById("education");
+  unique.forEach(v=>{
+    box.innerHTML += `<option>${v}</option>`;
+  });
+}
+
+/* LOAD JOBS */
 async function loadJobs(){
 
   let { data } = await supabase
@@ -200,6 +219,7 @@ async function loadJobs(){
   showJobs(filtered);
 }
 
+/* SHOW JOBS */
 function showJobs(data){
 
   let box = document.getElementById("jobs");
@@ -210,7 +230,7 @@ function showJobs(data){
     box.innerHTML+=`
       <div class="card">
         <img src="${j.image_url || 'https://via.placeholder.com/300'}">
-        
+
         <h3>${j.company_name}</h3>
 
         <span class="tag">${j.category}</span>
@@ -225,8 +245,6 @@ function showJobs(data){
     `;
   });
 }
-
-loadJobs();
 </script>
 
 </body>
