@@ -11,6 +11,7 @@ body{
   background:#eef2f7;
 }
 
+/* HEADER */
 .header{
   background:linear-gradient(135deg,#1e88e5,#1565c0);
   color:white;
@@ -20,17 +21,27 @@ body{
   font-weight:bold;
 }
 
-/* DROPDOWNS */
+/* FILTER BOX */
 .box{
-  padding:10px;
+  padding:12px;
 }
 
+/* 2 COLUMN ROW */
+.row{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+/* DROPDOWN STYLE */
 select{
-  width:100%;
+  flex:1;
   padding:12px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  margin-top:10px;
+  border-radius:12px;
+  border:1px solid #d0d0d0;
+  background:white;
+  font-size:14px;
+  outline:none;
 }
 
 /* CARD */
@@ -39,6 +50,7 @@ select{
   margin:12px;
   padding:12px;
   border-radius:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
 
 .card img{
@@ -74,25 +86,30 @@ button.view{
 
 <div class="header">🚀 Job Finder</div>
 
-<!-- DROPDOWNS -->
+<!-- FILTERS -->
 <div class="box">
 
-  <select id="state" onchange="filterJobs(); loadCities();">
-    <option value="">Select State</option>
-  </select>
+  <!-- ROW 1 -->
+  <div class="row">
+    <select id="state" onchange="loadCities(); filterJobs()">
+      <option value="">Select State</option>
+    </select>
 
-  <select id="city" onchange="filterJobs()">
-    <option value="">Select City</option>
-  </select>
+    <select id="city" onchange="filterJobs()">
+      <option value="">Select City</option>
+    </select>
+  </div>
 
-  <select id="category" onchange="filterJobs()">
-    <option value="">Select Category</option>
-  </select>
+  <!-- ROW 2 -->
+  <div class="row">
+    <select id="category" onchange="filterJobs()">
+      <option value="">Select Category</option>
+    </select>
 
-  <!-- 🔥 NEW QUALIFICATION DROPDOWN -->
-  <select id="qualification" onchange="filterJobs()">
-    <option value="">Select Qualification</option>
-  </select>
+    <select id="qualification" onchange="filterJobs()">
+      <option value="">Select Qualification</option>
+    </select>
+  </div>
 
 </div>
 
@@ -104,53 +121,41 @@ button.view{
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 let allJobs = [];
 
 window.onload = async function(){
   await loadJobs();
   await loadStates();
-  await loadCities();
   await loadCategories();
   await loadQualifications();
 }
 
 /* JOBS */
 async function loadJobs(){
-
-  const { data, error } = await supabaseClient
-    .from("jobs")
-    .select("*")
-    .order("id", { ascending:false });
-
-  if(error){
-    console.log(error);
-    return;
-  }
-
+  const { data } = await supabase.from("jobs").select("*").order("id",{ascending:false});
   allJobs = data || [];
   showJobs(allJobs);
 }
 
 /* STATES */
 async function loadStates(){
-  const { data } = await supabaseClient.from("jobs").select("state");
-
+  const { data } = await supabase.from("jobs").select("state");
   let box = document.getElementById("state");
-  let unique = [...new Set((data || []).map(i => i.state).filter(Boolean))];
+
+  let unique = [...new Set((data||[]).map(i=>i.state).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
   });
 }
 
-/* CITIES */
+/* CITY (depends on state) */
 async function loadCities(){
-
   let state = document.getElementById("state").value;
 
-  let query = supabaseClient.from("jobs").select("city, state");
+  let query = supabase.from("jobs").select("city");
 
   if(state){
     query = query.eq("state", state);
@@ -161,7 +166,7 @@ async function loadCities(){
   let box = document.getElementById("city");
   box.innerHTML = `<option value="">Select City</option>`;
 
-  let unique = [...new Set((data || []).map(i => i.city).filter(Boolean))];
+  let unique = [...new Set((data||[]).map(i=>i.city).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
@@ -170,22 +175,22 @@ async function loadCities(){
 
 /* CATEGORY */
 async function loadCategories(){
-  const { data } = await supabaseClient.from("jobs").select("category");
-
+  const { data } = await supabase.from("jobs").select("category");
   let box = document.getElementById("category");
-  let unique = [...new Set((data || []).map(i => i.category).filter(Boolean))];
+
+  let unique = [...new Set((data||[]).map(i=>i.category).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
   });
 }
 
-/* 🔥 QUALIFICATION */
+/* QUALIFICATION */
 async function loadQualifications(){
-  const { data } = await supabaseClient.from("jobs").select("qualification");
-
+  const { data } = await supabase.from("jobs").select("qualification");
   let box = document.getElementById("qualification");
-  let unique = [...new Set((data || []).map(i => i.qualification).filter(Boolean))];
+
+  let unique = [...new Set((data||[]).map(i=>i.qualification).filter(Boolean))];
 
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
