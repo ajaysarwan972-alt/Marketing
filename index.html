@@ -2,34 +2,27 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Job Portal</title>
+<title>Job Portal Filter</title>
 
 <style>
 body{
-  margin:0;
   font-family:Arial;
+  margin:0;
   background:#f2f4f8;
 }
 
-/* HEADER BUTTON */
-.top{
+/* HEADER */
+.header{
   background:#1e88e5;
+  color:white;
   padding:15px;
   text-align:center;
-}
-
-.top a button{
-  background:white;
-  color:#1e88e5;
-  border:none;
-  padding:12px 15px;
-  border-radius:10px;
+  font-size:20px;
   font-weight:bold;
-  font-size:14px;
 }
 
-/* FILTER BOX */
-.filter{
+/* BOX */
+.box{
   background:white;
   margin:15px;
   padding:15px;
@@ -37,55 +30,139 @@ body{
   box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
-select{
+/* INPUTS */
+select, input{
   width:100%;
   padding:12px;
   margin-top:10px;
   border-radius:8px;
   border:1px solid #ddd;
 }
+
+/* JOB CARD */
+.job{
+  background:white;
+  margin:10px;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  background:green;
+  color:white;
+  border:none;
+  border-radius:8px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- TOP BUTTON -->
-<div class="top">
-  <a href="dealerjob.html">
-    <button>🧑 Apni Job dalne ke liye yaha click kre</button>
-  </a>
-</div>
+<div class="header">📌 Job Filter System</div>
 
-<!-- FILTER -->
-<div class="filter">
+<div class="box">
 
-  <h3>🔎 Job Filter</h3>
+<h3>🔎 Search Job</h3>
+<input type="text" id="search" placeholder="Search job..." onkeyup="filterJobs()">
 
-  <select>
-    <option>State Select karo</option>
-    <option>Haryana</option>
-    <option>Delhi</option>
-    <option>Uttar Pradesh</option>
-    <option>Punjab</option>
-    <option>Rajasthan</option>
-    <option>Maharashtra</option>
-    <option>Bihar</option>
-    <option>All India</option>
-  </select>
+<!-- STATE -->
+<select id="state" onchange="loadCities(); filterJobs();">
+  <option value="">State Select karo</option>
+  <option value="delhi">Delhi</option>
+  <option value="haryana">Haryana</option>
+  <option value="up">Uttar Pradesh</option>
+</select>
 
-  <select>
-    <option>City Select karo</option>
-    <option>Gurgaon</option>
-    <option>Delhi</option>
-    <option>Noida</option>
-    <option>Lucknow</option>
-    <option>Jaipur</option>
-    <option>Mumbai</option>
-    <option>Patna</option>
-    <option>All Cities</option>
-  </select>
+<!-- CITY -->
+<select id="city" onchange="filterJobs()">
+  <option value="">Pehle State select karo</option>
+</select>
 
 </div>
+
+<!-- JOB LIST -->
+<div id="jobs"></div>
+
+<script>
+
+// STATE → CITY DATA
+const cityData = {
+  delhi: ["New Delhi", "Dwarka", "Rohini", "Saket"],
+  haryana: ["Gurgaon", "Faridabad", "Panipat", "Hisar"],
+  up: ["Lucknow", "Noida", "Kanpur", "Varanasi"]
+};
+
+// JOB DATA
+let jobs = [
+  {title:"Factory Helper", state:"haryana", city:"Gurgaon", phone:"9876543210"},
+  {title:"Account Assistant", state:"delhi", city:"Dwarka", phone:"9123456780"},
+  {title:"Driver Job", state:"up", city:"Lucknow", phone:"9000000000"}
+];
+
+// LOAD CITIES
+function loadCities(){
+
+  let state = document.getElementById("state").value;
+  let cityBox = document.getElementById("city");
+
+  cityBox.innerHTML = "<option value=''>City Select karo</option>";
+
+  if(state === "") return;
+
+  cityData[state].forEach(c => {
+    let opt = document.createElement("option");
+    opt.value = c;
+    opt.innerText = c;
+    cityBox.appendChild(opt);
+  });
+
+}
+
+// SHOW JOBS
+function show(data){
+
+  let box = document.getElementById("jobs");
+  box.innerHTML = "";
+
+  data.forEach(j => {
+    box.innerHTML += `
+      <div class="job">
+        <h3>${j.title}</h3>
+        <p>📍 ${j.state.toUpperCase()} - ${j.city}</p>
+
+        <a href="tel:${j.phone}">
+          <button>📞 Call HR</button>
+        </a>
+      </div>
+    `;
+  });
+
+}
+
+// FILTER SYSTEM
+function filterJobs(){
+
+  let search = document.getElementById("search").value.toLowerCase();
+  let state = document.getElementById("state").value;
+  let city = document.getElementById("city").value;
+
+  let filtered = jobs.filter(j =>
+    j.title.toLowerCase().includes(search) &&
+    (state === "" || j.state === state) &&
+    (city === "" || j.city === city)
+  );
+
+  show(filtered);
+}
+
+// INIT
+show(jobs);
+
+</script>
 
 </body>
 </html>
