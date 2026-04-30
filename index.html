@@ -26,23 +26,7 @@ body{
   object-fit:cover;
 }
 
-.admin{
-  padding:10px;
-}
-
-.admin button{
-  width:100%;
-  padding:12px;
-  background:#ff9800;
-  border:none;
-  color:white;
-  font-weight:bold;
-  border-radius:10px;
-}
-
-.box{
-  padding:10px;
-}
+.box{ padding:10px; }
 
 .row{
   display:flex;
@@ -55,7 +39,6 @@ select{
   padding:12px;
   border-radius:10px;
   border:1px solid #ccc;
-  background:white;
 }
 
 .card{
@@ -63,7 +46,6 @@ select{
   margin:12px;
   padding:12px;
   border-radius:15px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
 .card img{
@@ -91,7 +73,6 @@ button.view{
   color:white;
   border:none;
   border-radius:10px;
-  font-weight:bold;
 }
 </style>
 </head>
@@ -102,12 +83,6 @@ button.view{
 
 <div class="banner">
   <img src="banner.jpg">
-</div>
-
-<div class="admin">
-  <a href="admin.html">
-    <button>🔐 Admin Panel</button>
-  </a>
 </div>
 
 <div class="box">
@@ -140,107 +115,29 @@ button.view{
 
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+const supabaseKey = "PASTE_YOUR_REAL_ANON_KEY";
 
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+// ✅ FIX: variable rename
+const client = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-/* SAFE INIT */
-window.onload = async function(){
-  await loadStates();
-  await loadCities();
-  await loadJobTypes();
-  await loadEducation();
-  await loadJobs();
-}
-
-/* STATES */
-async function loadStates(){
-  let { data } = await supabase.from("jobs").select("state");
-  if(!data) return;
-
-  let unique = [...new Set(data.map(j => j.state).filter(Boolean))];
-
-  let box = document.getElementById("state");
-  box.innerHTML = `<option value="">State</option>`;
-
-  unique.forEach(v=>{
-    box.innerHTML += `<option>${v}</option>`;
-  });
-}
-
-/* CITIES */
-async function loadCities(){
-  let { data } = await supabase.from("jobs").select("city");
-  if(!data) return;
-
-  let unique = [...new Set(data.map(j => j.city).filter(Boolean))];
-
-  let box = document.getElementById("city");
-  box.innerHTML = `<option value="">City</option>`;
-
-  unique.forEach(v=>{
-    box.innerHTML += `<option>${v}</option>`;
-  });
-}
-
-/* JOB TYPE */
-async function loadJobTypes(){
-  let { data } = await supabase.from("jobs").select("category");
-  if(!data) return;
-
-  let unique = [...new Set(data.map(j => j.category).filter(Boolean))];
-
-  let box = document.getElementById("jobtype");
-  box.innerHTML = `<option value="">Job Type</option>`;
-
-  unique.forEach(v=>{
-    box.innerHTML += `<option>${v}</option>`;
-  });
-}
-
-/* EDUCATION */
-async function loadEducation(){
-  let { data } = await supabase.from("jobs").select("qualification");
-  if(!data) return;
-
-  let unique = [...new Set(data.map(j => j.qualification).filter(Boolean))];
-
-  let box = document.getElementById("education");
-  box.innerHTML = `<option value="">Education</option>`;
-
-  unique.forEach(v=>{
-    box.innerHTML += `<option>${v}</option>`;
-  });
-}
+loadJobs();
 
 /* LOAD JOBS */
 async function loadJobs(){
 
-  let { data, error } = await supabase
+  let { data, error } = await client
     .from("jobs")
     .select("*")
-    .order("created_at",{ascending:false});
+    .order("id", { ascending: false });
 
   if(error){
-    console.log(error);
+    console.log("ERROR:", error);
     return;
   }
 
   if(!data) data = [];
 
-  let state = document.getElementById("state").value;
-  let city = document.getElementById("city").value;
-  let jobtype = document.getElementById("jobtype").value;
-  let education = document.getElementById("education").value;
-
-  let filtered = data.filter(j =>
-    (!state || j.state == state) &&
-    (!city || j.city == city) &&
-    (!jobtype || j.category == jobtype) &&
-    (!education || j.qualification == education)
-  );
-
-  showJobs(filtered);
+  showJobs(data);
 }
 
 /* SHOW JOBS */
