@@ -20,38 +20,6 @@ body{
   font-weight:bold;
 }
 
-.banner img{
-  width:100%;
-  height:150px;
-  object-fit:cover;
-}
-
-.admin{
-  padding:10px;
-}
-
-.admin button{
-  width:100%;
-  padding:12px;
-  background:#ff9800;
-  border:none;
-  color:white;
-  font-weight:bold;
-  border-radius:10px;
-}
-
-.row{
-  display:flex;
-  gap:10px;
-  padding:10px;
-}
-
-select{
-  flex:1;
-  padding:12px;
-  border-radius:10px;
-}
-
 .card{
   background:white;
   margin:12px;
@@ -92,36 +60,6 @@ button.view{
 
 <div class="header">🚀 Job Finder</div>
 
-<div class="banner">
-  <img src="banner.jpg">
-</div>
-
-<div class="admin">
-  <a href="admin.html">
-    <button>🔐 Admin Panel</button>
-  </a>
-</div>
-
-<div class="row">
-  <select id="state" onchange="loadJobs()">
-    <option value="">State</option>
-  </select>
-
-  <select id="city" onchange="loadJobs()">
-    <option value="">City</option>
-  </select>
-</div>
-
-<div class="row">
-  <select id="jobtype" onchange="loadJobs()">
-    <option value="">Job Type</option>
-  </select>
-
-  <select id="education" onchange="loadJobs()">
-    <option value="">Education</option>
-  </select>
-</div>
-
 <div id="jobs"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -129,24 +67,24 @@ button.view{
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
+/* ✅ YOUR REAL ANON KEY */
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-window.onload = async function(){
-  await loadJobs();
-}
+window.onload = loadJobs;
 
 /* LOAD JOBS */
 async function loadJobs(){
 
-  let { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("jobs")
     .select("*")
-    .order("id",{ascending:false});
+    .order("id", { ascending:false });
 
   if(error){
-    console.log(error);
+    console.log("ERROR:", error);
+    alert("Data load failed");
     return;
   }
 
