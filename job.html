@@ -56,11 +56,6 @@ body{
   border:none;
   border-radius:10px;
 }
-
-.loading{
-  text-align:center;
-  margin-top:30px;
-}
 </style>
 </head>
 
@@ -69,7 +64,7 @@ body{
 <div class="header">📄 Job Details</div>
 
 <div class="container">
-  <div id="job" class="loading">Loading...</div>
+  <div id="job">Loading...</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -90,7 +85,7 @@ window.onload = loadJob;
 async function loadJob(){
 
   if(!id){
-    document.getElementById("job").innerHTML = "Job ID missing";
+    document.getElementById("job").innerHTML = "<h3>Job ID missing</h3>";
     return;
   }
 
@@ -101,7 +96,7 @@ async function loadJob(){
     .single();
 
   if(error || !data){
-    document.getElementById("job").innerHTML = "Job not found";
+    document.getElementById("job").innerHTML = "<h3>Job not found</h3>";
     return;
   }
 
@@ -119,12 +114,12 @@ function showJob(j){
 
       <span class="tag">${j.category || ''}</span>
       <span class="tag">${j.qualification || ''}</span>
+      <span class="tag">${j.area || ''}</span>
 
       <p><b>City:</b> ${j.city || ''}</p>
       <p><b>State:</b> ${j.state || ''}</p>
-      <p><b>Area:</b> ${j.area || ''}</p>
 
-      <button class="btn">
+      <button class="btn" onclick="alert('Apply system later')">
         Apply Now
       </button>
 
