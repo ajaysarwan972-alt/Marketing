@@ -81,7 +81,7 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// URL se ID lena
+// URL se ID
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
@@ -90,7 +90,7 @@ window.onload = loadJob;
 async function loadJob(){
 
   if(!id){
-    document.getElementById("job").innerHTML = "<h3>Job ID missing</h3>";
+    document.getElementById("job").innerHTML = "Job ID missing";
     return;
   }
 
@@ -101,7 +101,7 @@ async function loadJob(){
     .single();
 
   if(error || !data){
-    document.getElementById("job").innerHTML = "<h3>Job not found</h3>";
+    document.getElementById("job").innerHTML = "Job not found";
     return;
   }
 
@@ -122,8 +122,9 @@ function showJob(j){
 
       <p><b>City:</b> ${j.city || ''}</p>
       <p><b>State:</b> ${j.state || ''}</p>
+      <p><b>Area:</b> ${j.area || ''}</p>
 
-      <button class="btn" onclick="alert('Apply system add later')">
+      <button class="btn">
         Apply Now
       </button>
 
