@@ -21,10 +21,7 @@ body{
 }
 
 .box{
-  background:white;
-  margin:10px;
   padding:10px;
-  border-radius:10px;
 }
 
 select{
@@ -32,31 +29,29 @@ select{
   padding:10px;
   margin-top:8px;
   border-radius:8px;
+  border:1px solid #ddd;
 }
 
-.job{
+.card{
   background:white;
   margin:10px;
-  padding:15px;
+  padding:10px;
   border-radius:10px;
   box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* CATEGORY CHECKBOX */
-.cat{
-  margin-top:10px;
-}
-
-.cat label{
-  display:block;
-  margin:5px 0;
+.card img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  border-radius:10px;
 }
 
 button{
   width:100%;
   padding:10px;
-  margin-top:10px;
-  background:green;
+  margin-top:8px;
+  background:#1e88e5;
   color:white;
   border:none;
   border-radius:8px;
@@ -70,153 +65,82 @@ button{
 
 <div class="box">
 
-<!-- STATE -->
-<select id="state" onchange="loadCities(); filterJobs();">
-  <option value="">State Select karo</option>
-  <option value="haryana">Haryana</option>
-  <option value="delhi">Delhi</option>
-  <option value="up">UP</option>
+<select id="state" onchange="loadJobs()">
+  <option value="">State Select</option>
+  <option>Haryana</option>
+  <option>Delhi</option>
+  <option>UP</option>
 </select>
 
-<!-- CITY -->
-<select id="city" onchange="filterJobs()">
-  <option value="">City Select karo</option>
+<select id="city" onchange="loadJobs()">
+  <option value="">City Select</option>
+  <option>Ambala</option>
+  <option>Gurgaon</option>
+  <option>Delhi</option>
+  <option>Lucknow</option>
 </select>
-
-<!-- QUALIFICATION -->
-<select id="qualification" onchange="filterJobs()">
-  <option value="">Qualification</option>
-  <option>10th Pass</option>
-  <option>12th Pass</option>
-  <option>ITI</option>
-  <option>Diploma</option>
-  <option>Graduate</option>
-</select>
-
-<!-- CATEGORY (MULTI SELECT) -->
-<div class="cat">
-  <b>Job Category</b><br>
-
-  <label><input type="checkbox" value="Helper" onchange="filterJobs()"> Helper</label>
-  <label><input type="checkbox" value="Driver" onchange="filterJobs()"> Driver</label>
-  <label><input type="checkbox" value="Accountant" onchange="filterJobs()"> Accountant</label>
-  <label><input type="checkbox" value="Security" onchange="filterJobs()"> Security</label>
-</div>
 
 </div>
 
-<!-- JOB LIST -->
 <div id="jobs"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+const supabaseKey = "sb_publishable--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
 
-// CITY DATA
-const cityData = {
-  haryana: ["Ambala", "Gurgaon", "Hisar"],
-  delhi: ["New Delhi", "Dwarka"],
-  up: ["Lucknow", "Noida"]
-};
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// JOB DATA (DEMO)
-let jobs = [
-  {
-    title:"Helper Job",
-    state:"haryana",
-    city:"Ambala",
-    category:"Helper",
-    qualification:"10th Pass",
-    phone:"9876543210"
-  },
-  {
-    title:"Account Job",
-    state:"delhi",
-    city:"Dwarka",
-    category:"Accountant",
-    qualification:"Graduate",
-    phone:"9123456780"
-  },
-  {
-    title:"Driver Job",
-    state:"haryana",
-    city:"Gurgaon",
-    category:"Driver",
-    qualification:"10th Pass",
-    phone:"9000000000"
+// LOAD JOBS
+async function loadJobs(){
+
+  let { data, error } = await supabase
+    .from("jobs")
+    .select("*")
+    .order("created_at", { ascending:false });
+
+  if(error){
+    console.log(error);
+    return;
   }
-];
-
-// LOAD CITIES
-function loadCities(){
 
   let state = document.getElementById("state").value;
-  let cityBox = document.getElementById("city");
+  let city = document.getElementById("city").value;
 
-  cityBox.innerHTML = "<option value=''>City Select karo</option>";
+  let filtered = data.filter(job =>
+    (state === "" || job.state === state) &&
+    (city === "" || job.city === city)
+  );
 
-  if(state === "") return;
-
-  cityData[state].forEach(c=>{
-    cityBox.innerHTML += `<option value="${c}">${c}</option>`;
-  });
-
+  showJobs(filtered);
 }
 
-// GET SELECTED CATEGORIES
-function getCategories(){
-  let checked = document.querySelectorAll(".cat input:checked");
-  let arr = [];
-  checked.forEach(c => arr.push(c.value));
-  return arr;
-}
-
-// SHOW JOBS
-function show(data){
+// SHOW CARDS
+function showJobs(data){
 
   let box = document.getElementById("jobs");
   box.innerHTML = "";
 
-  data.forEach(j=>{
-    box.innerHTML += `
-      <div class="job">
-        <h3>${j.title}</h3>
-        <p>📍 ${j.state} - ${j.city}</p>
-        <p>🧑 ${j.category} | 🎓 ${j.qualification}</p>
+  data.forEach(job => {
 
-        <a href="tel:${j.phone}">
-          <button>📞 Call HR</button>
+    box.innerHTML += `
+      <div class="card">
+        <img src="${job.image_url || 'https://via.placeholder.com/300'}">
+        <h3>${job.company_name}</h3>
+        <p><b>${job.title}</b></p>
+        <p>${job.city} | ${job.state}</p>
+
+        <a href="job.html?id=${job.id}">
+          <button>View Details</button>
         </a>
       </div>
     `;
   });
-
-}
-
-// FILTER SYSTEM
-function filterJobs(){
-
-  let state = document.getElementById("state").value;
-  let city = document.getElementById("city").value;
-  let qualification = document.getElementById("qualification").value;
-  let categories = getCategories();
-
-  let filtered = jobs.filter(j=>{
-
-    let catMatch = categories.length === 0 || categories.includes(j.category);
-
-    return (
-      (state === "" || j.state === state) &&
-      (city === "" || j.city === city) &&
-      (qualification === "" || j.qualification === qualification) &&
-      catMatch
-    );
-
-  });
-
-  show(filtered);
 }
 
 // INIT
-show(jobs);
+loadJobs();
 
 </script>
 
