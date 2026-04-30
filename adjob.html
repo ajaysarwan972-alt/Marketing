@@ -59,7 +59,8 @@ textarea{
 
 <input type="text" id="company" placeholder="Company Name">
 
-<input type="text" id="image" placeholder="Image URL">
+<!-- IMAGE UPLOAD -->
+<input type="file" id="imageFile" accept="image/*">
 
 <input type="text" id="title" placeholder="Job Title">
 
@@ -104,10 +105,38 @@ const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "sb_publishable--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+/* UPLOAD IMAGE */
+async function uploadImage(file){
+
+  const fileName = Date.now() + "_" + file.name;
+
+  let { error } = await supabase.storage
+    .from("job-images")
+    .upload(fileName, file);
+
+  if(error){
+    alert("Image upload failed");
+    return "";
+  }
+
+  let { data } = supabase.storage
+    .from("job-images")
+    .getPublicUrl(fileName);
+
+  return data.publicUrl;
+}
+
+/* ADD JOB */
 async function addJob(){
 
+  let file = document.getElementById("imageFile").files[0];
+  let imageUrl = "";
+
+  if(file){
+    imageUrl = await uploadImage(file);
+  }
+
   let company = document.getElementById("company").value;
-  let image = document.getElementById("image").value;
   let title = document.getElementById("title").value;
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
@@ -125,7 +154,7 @@ async function addJob(){
     .from("jobs")
     .insert([{
       company_name: company,
-      image_url: image,
+      image_url: imageUrl,
       title: title,
       state: state,
       city: city,
@@ -136,7 +165,7 @@ async function addJob(){
     }]);
 
   if(error){
-    alert("Error: "+error.message);
+    alert(error.message);
   } else {
     alert("Job Added Successfully");
     window.location.href = "index.html";
@@ -145,4 +174,4 @@ async function addJob(){
 </script>
 
 </body>
-  </html>
+</html>
