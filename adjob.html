@@ -24,7 +24,7 @@ body{
   padding:10px;
 }
 
-input, select, textarea{
+input, textarea{
   width:100%;
   padding:12px;
   margin-top:10px;
@@ -59,36 +59,15 @@ textarea{
 
 <input type="text" id="company" placeholder="Company Name">
 
-<!-- IMAGE UPLOAD -->
 <input type="file" id="imageFile" accept="image/*">
 
 <input type="text" id="title" placeholder="Job Title">
 
-<select id="state">
-  <option value="">Select State</option>
-  <option>Haryana</option>
-  <option>Delhi</option>
-  <option>UP</option>
-</select>
-
-<input type="text" id="city" placeholder="City">
-
-<select id="jobtype">
-  <option value="">Job Type</option>
-  <option>Helper</option>
-  <option>Driver</option>
-  <option>Accountant</option>
-  <option>Security</option>
-</select>
-
-<select id="education">
-  <option value="">Education</option>
-  <option>10th Pass</option>
-  <option>12th Pass</option>
-  <option>ITI</option>
-  <option>Diploma</option>
-  <option>Graduate</option>
-</select>
+<!-- DYNAMIC INPUTS -->
+<input type="text" id="state" placeholder="State (e.g. Haryana)">
+<input type="text" id="city" placeholder="City (e.g. Yamunanagar)">
+<input type="text" id="jobtype" placeholder="Job Type (e.g. Helper)">
+<input type="text" id="education" placeholder="Education (e.g. 10th Pass)">
 
 <textarea id="desc" placeholder="Job Description"></textarea>
 
@@ -105,7 +84,7 @@ const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "sb_publishable--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* UPLOAD IMAGE */
+/* IMAGE UPLOAD */
 async function uploadImage(file){
 
   const fileName = Date.now() + "_" + file.name;
@@ -138,10 +117,12 @@ async function addJob(){
 
   let company = document.getElementById("company").value;
   let title = document.getElementById("title").value;
+
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
   let jobtype = document.getElementById("jobtype").value;
   let education = document.getElementById("education").value;
+
   let desc = document.getElementById("desc").value;
   let phone = document.getElementById("phone").value;
 
