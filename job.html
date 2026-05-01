@@ -167,7 +167,7 @@ async function loadJobs(){
   showJobs(allJobs);
 }
 
-/* FILTER FUNCTIONS SAME (UNCHANGED) */
+/* STATES */
 async function loadStates(){
   const { data } = await supabaseClient.from("jobs").select("state");
   let box = document.getElementById("state");
@@ -177,6 +177,7 @@ async function loadStates(){
   });
 }
 
+/* CITIES */
 async function loadCities(){
   let state = document.getElementById("state").value;
   let query = supabaseClient.from("jobs").select("city,state");
@@ -194,6 +195,7 @@ async function loadCities(){
   });
 }
 
+/* AREAS */
 async function loadAreas(){
   let city = document.getElementById("city").value;
   let query = supabaseClient.from("jobs").select("area,city");
@@ -211,6 +213,7 @@ async function loadAreas(){
   });
 }
 
+/* CATEGORY */
 async function loadCategories(){
   const { data } = await supabaseClient.from("jobs").select("category");
   let box = document.getElementById("category");
@@ -220,6 +223,7 @@ async function loadCategories(){
   });
 }
 
+/* QUALIFICATION */
 async function loadQualifications(){
   const { data } = await supabaseClient.from("jobs").select("qualification");
   let box = document.getElementById("qualification");
@@ -249,7 +253,7 @@ function filterJobs(){
   showJobs(filtered);
 }
 
-/* SHOW LIST */
+/* SHOW LIST (🔥 SALARY ADDED HERE) */
 function showJobs(data){
 
   document.getElementById("jobs").style.display = "block";
@@ -269,6 +273,8 @@ function showJobs(data){
 
         <p>${j.city || ''} | ${j.state || ''} | ${j.area || ''}</p>
 
+        <p><b>Salary:</b> ₹${j.salary || 'N/A'}</p>
+
         <button class="view" onclick='openDetail(${JSON.stringify(j)})'>
           View Details
         </button>
@@ -277,7 +283,7 @@ function showJobs(data){
   });
 }
 
-/* DETAIL VIEW (FIXED) */
+/* DETAIL */
 function openDetail(j){
 
   document.getElementById("jobs").style.display = "none";
