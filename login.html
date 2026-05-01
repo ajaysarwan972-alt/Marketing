@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login / Signup</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family:Arial;
+  background:#f5f6fa;
+  padding:20px;
+}
+
+.box{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  max-width:320px;
+  margin:auto;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  background:#ff3c7e;
+  color:white;
+  border:none;
+  border-radius:8px;
+  margin-top:10px;
+  font-weight:bold;
+}
+
+hr{
+  margin:20px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h3>Login</h3>
+<input type="text" id="mobile" placeholder="Mobile">
+<input type="password" id="password" placeholder="Password">
+<button onclick="login()">Login</button>
+
+<hr>
+
+<h3>Signup</h3>
+<input type="text" id="name" placeholder="Name">
+<input type="text" id="smobile" placeholder="Mobile">
+<input type="password" id="spassword" placeholder="Password">
+<button onclick="signup()">Signup</button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+
+const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+/* SIMPLE PASSWORD ENCODE */
+function hash(p){
+  return btoa(p);
+}
+
+/* SIGNUP */
+async function signup(){
+
+  let name = document.getElementById("name").value.trim();
+  let mobile = document.getElementById("smobile").value.trim();
+  let password = document.getElementById("spassword").value;
+
+  if(!name || !mobile || !password){
+    alert("❌ Fill all fields");
+    return;
+  }
+
+  // 🔥 CHECK DUPLICATE MOBILE
+  let { data: existing } = await client
+    .from("users")
+    .select("*")
+    .eq("mobile", mobile);
+
+  if(existing.length > 0){
+    alert("⚠️ Mobile already registered");
+    return;
+  }
+
+  let { error } = await client.from("users").insert([{
+    name,
+    mobile,
+    password: hash(password),
+    wallet: 0
+  }]);
+
+  if(error){
+    alert(error.message);
+  }else{
+    alert("✅ Signup Success");
+
+    // auto fill login fields
+    document.getElementById("mobile").value = mobile;
+    document.getElementById("password").value = password;
+  }
+}
+
+/* LOGIN */
+async function login(){
+
+  let mobile = document.getElementById("mobile").value.trim();
+  let password = hash(document.getElementById("password").value);
+
+  if(!mobile || !password){
+    alert("❌ Fill login fields");
+    return;
+  }
+
+  let { data, error } = await client
+    .from("users")
+    .select("*")
+    .eq("mobile", mobile)
+    .eq("password", password)
+    .single();
+
+  if(error || !data){
+    alert("❌ Wrong Login");
+    return;
+  }
+
+  // SAVE USER
+  localStorage.setItem("user", JSON.stringify(data));
+
+  // 🔥 REDIRECT
+  window.location.href = "adjob.html";
+}
+</script>
+
+</body>
+  </html>
