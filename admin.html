@@ -77,7 +77,16 @@ button{
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 <script>
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+
+/* 🔥 YOUR ANON KEY */
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+
+const client = supabase.createClient(supabaseUrl, supabaseKey);
+
 /* UI */
 function showSignup(){
   document.getElementById("loginBox").style.display="none";
@@ -89,13 +98,13 @@ function showLogin(){
   document.getElementById("loginBox").style.display="block";
 }
 
-/* HASH simple */
+/* HASH (simple demo) */
 function hash(p){
   return btoa(p);
 }
 
 /* SIGNUP */
-function signup(){
+async function signup(){
 
   let name = document.getElementById("name").value;
   let mobile = document.getElementById("smobile").value;
@@ -106,49 +115,58 @@ function signup(){
     return;
   }
 
-  let users = JSON.parse(localStorage.getItem("users") || "[]");
+  let { data } = await client
+    .from("users")
+    .select("*")
+    .eq("mobile", mobile);
 
-  let exists = users.find(u => u.mobile === mobile);
-
-  if(exists){
+  if(data.length > 0){
     alert("Already registered");
     return;
   }
 
-  let newUser = {
-    id: Date.now().toString(),
-    name,
-    mobile,
-    password: hash(password),
-    wallet: 0
-  };
+  let { error } = await client
+    .from("users")
+    .insert([{
+      id: Date.now().toString(),
+      name: name,
+      mobile: mobile,
+      password: hash(password),
+      wallet: 0
+    }]);
 
-  users.push(newUser);
-  localStorage.setItem("users", JSON.stringify(users));
-
-  alert("Signup success");
-  showLogin();
+  if(error){
+    alert(error.message);
+  } else {
+    alert("Signup success");
+    showLogin();
+  }
 }
 
 /* LOGIN */
-function login(){
+async function login(){
 
   let mobile = document.getElementById("mobile").value;
   let password = document.getElementById("password").value;
 
-  let users = JSON.parse(localStorage.getItem("users") || "[]");
+  let { data, error } = await client
+    .from("users")
+    .select("*")
+    .eq("mobile", mobile)
+    .eq("password", hash(password));
 
-  let user = users.find(u =>
-    u.mobile === mobile && u.password === hash(password)
-  );
+  if(error){
+    alert(error.message);
+    return;
+  }
 
-  if(!user){
+  if(data.length === 0){
     alert("Wrong login");
     return;
   }
 
-  // 🔥 MAIN FIX (single user save)
-  localStorage.setItem("user", JSON.stringify(user));
+  /* 🔥 SAVE CURRENT USER */
+  localStorage.setItem("user", JSON.stringify(data[0]));
 
   alert("Login success");
   window.location.href = "userhome.html";
