@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login System</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#f5f6fa;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.box{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  width:320px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  background:#ff3c7e;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h3>Login / Signup</h3>
+
+<input type="text" id="name" placeholder="Name (Signup only)">
+<input type="text" id="mobile" placeholder="Mobile">
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="signup()">Signup</button>
+<button onclick="login()">Login</button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+
+/* 🔥 ANON KEY */
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+
+const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+/* hash */
+function hash(p){
+  return btoa(p);
+}
+
+/* SIGNUP */
+async function signup(){
+
+  let name = document.getElementById("name").value;
+  let mobile = document.getElementById("mobile").value;
+  let password = document.getElementById("password").value;
+
+  if(!name || !mobile || !password){
+    alert("Fill all fields");
+    return;
+  }
+
+  const { error } = await client
+    .from("login")
+    .insert([{
+      name: name,
+      mobile: mobile,
+      password: hash(password),
+      wallet: 0
+    }]);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  alert("Signup success");
+}
+
+/* LOGIN */
+async function login(){
+
+  let mobile = document.getElementById("mobile").value;
+  let password = document.getElementById("password").value;
+
+  const { data, error } = await client
+    .from("login")
+    .select("*")
+    .eq("mobile", mobile)
+    .eq("password", hash(password))
+    .single();
+
+  if(error || !data){
+    alert("Wrong login");
+    return;
+  }
+
+  localStorage.setItem("user", JSON.stringify(data));
+
+  alert("Login success");
+
+  /* 🔥 HOME PAGE OPEN */
+  window.location.href = "home.html";
+}
+
+</script>
+
+</body>
+</html>
