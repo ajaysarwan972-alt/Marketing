@@ -48,9 +48,7 @@ button{
   font-size:14px;
 }
 
-#signupBox{
-  display:none;
-}
+#signupBox{ display:none; }
 </style>
 </head>
 
@@ -58,19 +56,15 @@ button{
 
 <div class="box">
 
-<!-- LOGIN -->
 <div id="loginBox">
   <h3>Login</h3>
   <input type="text" id="mobile" placeholder="Mobile">
   <input type="password" id="password" placeholder="Password">
   <button onclick="login()">Login</button>
 
-  <div class="switch" onclick="showSignup()">
-    👉 New user? Register here
-  </div>
+  <div class="switch" onclick="showSignup()">👉 New user? Register here</div>
 </div>
 
-<!-- SIGNUP -->
 <div id="signupBox">
   <h3>Register</h3>
   <input type="text" id="name" placeholder="Name">
@@ -78,9 +72,7 @@ button{
   <input type="password" id="spassword" placeholder="Password">
   <button onclick="signup()">Signup</button>
 
-  <div class="switch" onclick="showLogin()">
-    🔙 Back to Login
-  </div>
+  <div class="switch" onclick="showLogin()">🔙 Back to Login</div>
 </div>
 
 </div>
@@ -89,16 +81,24 @@ button{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
-const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+let client = null;
 
-/* ✅ FIXED INIT */
-const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+/* ✅ SAFE INIT (IMPORTANT FIX) */
+window.onload = function(){
 
-/* AUTO LOGIN */
-let user = JSON.parse(localStorage.getItem("user") || "null");
-if(user){
-  window.location.href = "userhome.html";
+  if(window.supabase){
+    const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+
+    client = window.supabase.createClient(supabaseUrl, supabaseKey);
+  } else {
+    alert("Supabase load nahi hua, internet check karo");
+  }
+
+  let user = JSON.parse(localStorage.getItem("user") || "null");
+  if(user){
+    window.location.href = "userhome.html";
+  }
 }
 
 /* UI */
@@ -112,13 +112,13 @@ function showLogin(){
   document.getElementById("loginBox").style.display = "block";
 }
 
-/* HASH */
 function hash(p){
   return btoa(p);
 }
 
 /* SIGNUP */
 async function signup(){
+  if(!client){ alert("DB not ready"); return; }
 
   let name = document.getElementById("name").value.trim();
   let mobile = document.getElementById("smobile").value.trim();
@@ -146,9 +146,8 @@ async function signup(){
     wallet: 0
   }]);
 
-  if(error){
-    alert("Signup Error: " + error.message);
-  }else{
+  if(error) alert(error.message);
+  else {
     alert("✅ Signup Success");
     showLogin();
   }
@@ -156,14 +155,10 @@ async function signup(){
 
 /* LOGIN */
 async function login(){
+  if(!client){ alert("DB not ready"); return; }
 
   let mobile = document.getElementById("mobile").value.trim();
   let password = document.getElementById("password").value;
-
-  if(!mobile || !password){
-    alert("❌ Fill login fields");
-    return;
-  }
 
   let { data, error } = await client
     .from("users")
@@ -172,7 +167,7 @@ async function login(){
     .eq("password", hash(password));
 
   if(error){
-    alert("DB Error: " + error.message);
+    alert(error.message);
     return;
   }
 
