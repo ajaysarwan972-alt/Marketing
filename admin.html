@@ -1,69 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Login / Signup</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
 
 <style>
 body{
-  margin:0;
   font-family:Arial;
-  background:#eef2f7;
+  background:#f5f6fa;
+  padding:20px;
 }
 
 .box{
-  width:90%;
-  max-width:400px;
-  margin:auto;
-  margin-top:80px;
   background:white;
   padding:20px;
-  border-radius:15px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.1);
-}
-
-h2{
-  text-align:center;
-  color:#1e88e5;
+  border-radius:12px;
+  max-width:320px;
+  margin:auto;
 }
 
 input{
   width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ddd;
 }
 
 button{
   width:100%;
-  padding:12px;
-  margin-top:15px;
-  background:#1e88e5;
+  padding:10px;
+  background:#ff3c7e;
   color:white;
   border:none;
-  border-radius:10px;
-  font-weight:bold;
-}
-
-.switch{
-  text-align:center;
+  border-radius:8px;
   margin-top:10px;
-  color:#555;
-  cursor:pointer;
-}
-
-/* WhatsApp reset link */
-.reset{
-  text-align:center;
-  margin-top:12px;
-}
-
-.reset a{
-  color:#25D366;
-  font-size:14px;
-  text-decoration:none;
   font-weight:bold;
+}
+
+hr{
+  margin:20px 0;
 }
 </style>
 </head>
@@ -72,94 +48,103 @@ button{
 
 <div class="box">
 
-<h2 id="title">Login</h2>
-
-<input type="text" id="phone" placeholder="Mobile Number">
+<h3>Login</h3>
+<input type="text" id="mobile" placeholder="Mobile">
 <input type="password" id="password" placeholder="Password">
+<button onclick="login()">Login</button>
 
-<button onclick="auth()">Login</button>
+<hr>
 
-<div class="switch" onclick="toggle()">
-  Don't have account? Signup
-</div>
-
-<!-- WHATSAPP RESET -->
-<div class="reset">
-  <a href="https://wa.me/919053922906?text=Hi%20I%20want%20to%20reset%20my%20password" target="_blank">
-    Forgot Password? Reset on WhatsApp
-  </a>
-</div>
+<h3>Signup</h3>
+<input type="text" id="name" placeholder="Name">
+<input type="text" id="smobile" placeholder="Mobile">
+<input type="password" id="spassword" placeholder="Password">
+<button onclick="signup()">Signup</button>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const supabaseUrl="https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey="sb_publishable--fdpQMmSlUyt2ywjUErgQ_LXGvQH-a";
-const supabase=supabase.createClient(supabaseUrl,supabaseKey);
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-let isLogin=true;
+const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* TOGGLE LOGIN / SIGNUP */
-function toggle(){
-
-  isLogin=!isLogin;
-
-  document.getElementById("title").innerText=isLogin?"Login":"Signup";
-  document.querySelector("button").innerText=isLogin?"Login":"Signup";
-  document.querySelector(".switch").innerText=isLogin?
-  "Don't have account? Signup":
-  "Already have account? Login";
+/* SIMPLE PASSWORD ENCODE */
+function hash(p){
+  return btoa(p);
 }
 
-/* AUTH SYSTEM */
-async function auth(){
+/* SIGNUP */
+async function signup(){
 
-  let phone=document.getElementById("phone").value;
-  let password=document.getElementById("password").value;
+  let name = document.getElementById("name").value.trim();
+  let mobile = document.getElementById("smobile").value.trim();
+  let password = document.getElementById("spassword").value;
 
-  if(!phone || !password){
-    alert("Fill all fields");
+  if(!name || !mobile || !password){
+    alert("❌ Fill all fields");
     return;
   }
 
-  if(isLogin){
+  // 🔥 CHECK DUPLICATE MOBILE
+  let { data: existing } = await client
+    .from("users")
+    .select("*")
+    .eq("mobile", mobile);
 
-    let { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("phone",phone)
-      .eq("password",password)
-      .single();
-
-    if(error || !data){
-      alert("Invalid login");
-    }else{
-      alert("Login Success");
-
-      localStorage.setItem("user",phone);
-
-      // 👉 DIRECT ADJOB PAGE OPEN
-      window.location.href="adjob.html";
-    }
-
-  } else {
-
-    let { error } = await supabase
-      .from("users")
-      .insert([{
-        phone:phone,
-        password:password
-      }]);
-
-    if(error){
-      alert(error.message);
-    }else{
-      alert("Signup Success");
-      toggle();
-    }
+  if(existing.length > 0){
+    alert("⚠️ Mobile already registered");
+    return;
   }
+
+  let { error } = await client.from("users").insert([{
+    name,
+    mobile,
+    password: hash(password),
+    wallet: 0
+  }]);
+
+  if(error){
+    alert(error.message);
+  }else{
+    alert("✅ Signup Success");
+
+    // auto fill login fields
+    document.getElementById("mobile").value = mobile;
+    document.getElementById("password").value = password;
+  }
+}
+
+/* LOGIN */
+async function login(){
+
+  let mobile = document.getElementById("mobile").value.trim();
+  let password = hash(document.getElementById("password").value);
+
+  if(!mobile || !password){
+    alert("❌ Fill login fields");
+    return;
+  }
+
+  let { data, error } = await client
+    .from("users")
+    .select("*")
+    .eq("mobile", mobile)
+    .eq("password", password)
+    .single();
+
+  if(error || !data){
+    alert("❌ Wrong Login");
+    return;
+  }
+
+  // SAVE USER
+  localStorage.setItem("user", JSON.stringify(data));
+
+  // 🔥 REDIRECT
+  window.location.href = "adjob.html";
 }
 </script>
 
