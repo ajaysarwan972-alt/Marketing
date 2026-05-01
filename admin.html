@@ -56,6 +56,7 @@ button{
 
 <div class="box">
 
+<!-- LOGIN -->
 <div id="loginBox">
   <h3>Login</h3>
   <input type="text" id="mobile" placeholder="Mobile">
@@ -65,6 +66,7 @@ button{
   <div class="switch" onclick="showSignup()">👉 New user? Register here</div>
 </div>
 
+<!-- SIGNUP -->
 <div id="signupBox">
   <h3>Register</h3>
   <input type="text" id="name" placeholder="Name">
@@ -83,23 +85,24 @@ button{
 <script>
 let client = null;
 
-/* ✅ SAFE INIT (IMPORTANT FIX) */
-window.onload = function(){
+/* INIT SAFE */
+document.addEventListener("DOMContentLoaded", function(){
 
-  if(window.supabase){
-    const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+  const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-    client = window.supabase.createClient(supabaseUrl, supabaseKey);
-  } else {
-    alert("Supabase load nahi hua, internet check karo");
+  if(!window.supabase){
+    alert("Supabase load nahi hua");
+    return;
   }
+
+  client = window.supabase.createClient(supabaseUrl, supabaseKey);
 
   let user = JSON.parse(localStorage.getItem("user") || "null");
   if(user){
     window.location.href = "userhome.html";
   }
-}
+});
 
 /* UI */
 function showSignup(){
@@ -112,13 +115,18 @@ function showLogin(){
   document.getElementById("loginBox").style.display = "block";
 }
 
+/* HASH */
 function hash(p){
   return btoa(p);
 }
 
 /* SIGNUP */
 async function signup(){
-  if(!client){ alert("DB not ready"); return; }
+
+  if(!client){
+    alert("DB not ready");
+    return;
+  }
 
   let name = document.getElementById("name").value.trim();
   let mobile = document.getElementById("smobile").value.trim();
@@ -146,8 +154,9 @@ async function signup(){
     wallet: 0
   }]);
 
-  if(error) alert(error.message);
-  else {
+  if(error){
+    alert(error.message);
+  }else{
     alert("✅ Signup Success");
     showLogin();
   }
@@ -155,7 +164,11 @@ async function signup(){
 
 /* LOGIN */
 async function login(){
-  if(!client){ alert("DB not ready"); return; }
+
+  if(!client){
+    alert("DB not ready");
+    return;
+  }
 
   let mobile = document.getElementById("mobile").value.trim();
   let password = document.getElementById("password").value;
