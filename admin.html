@@ -81,7 +81,7 @@ button{
 <script>
 
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "YOUR_ANON_KEY";
+const supabaseKey = "YOUR_ANON_KEY"; // 🔥 yaha real anon key daal
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -96,7 +96,7 @@ function showLogin(){
   document.getElementById("loginBox").style.display="block";
 }
 
-/* 🔥 SIGNUP (AUTH + USERS TABLE) */
+/* 🔥 SIGNUP */
 async function signup(){
 
   let name = document.getElementById("name").value;
@@ -120,12 +120,19 @@ async function signup(){
 
   const user = data.user;
 
-  // save in users table
-  const { error: dbError } = await client.from("users").insert([{
-    id: user.id,
-    name: name,
-    wallet: 0
-  }]);
+  if(!user){
+    alert("Signup failed");
+    return;
+  }
+
+  // 🔥 users table insert
+  const { error: dbError } = await client
+    .from("users")
+    .insert([{
+      id: user.id,
+      name: name,
+      wallet: 0
+    }]);
 
   if(dbError){
     alert(dbError.message);
@@ -152,8 +159,15 @@ async function login(){
     return;
   }
 
+  if(!data.user){
+    alert("Login failed");
+    return;
+  }
+
   alert("Login success");
-  window.location.href = "userhome.html";
+
+  // 🔥 FIXED PATH
+  window.location.href = "./userhome.html";
 }
 
 </script>
