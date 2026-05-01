@@ -103,13 +103,13 @@ button{
 <script>
 
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+const supabaseKey = "YOUR_ANON_KEY"; // ⚠️ safe replace
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 let userData = null;
 
-/* 🔥 LOAD USER SAFE */
+/* 🔥 SAFE USER LOAD */
 async function loadUser(){
 
   const { data, error } = await client.auth.getUser();
@@ -144,7 +144,7 @@ async function loadUser(){
 
 loadUser();
 
-/* 🔥 LOAD JOBS SAFE */
+/* 🔥 SAFE JOB LOAD */
 async function loadJobs(){
 
   if(!userData){
@@ -161,7 +161,7 @@ async function loadJobs(){
   box.innerHTML = "";
 
   if(error){
-    box.innerHTML = error.message;
+    box.innerHTML = "Error: " + error.message;
     return;
   }
 
