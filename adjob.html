@@ -85,7 +85,6 @@ button{
 
 </div>
 
-<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
@@ -94,17 +93,38 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* USER */
-let user = JSON.parse(localStorage.getItem("user"));
+let currentUser = null;
 
-if(!user){
-  alert("Login first");
-  window.location.href = "login.html";
+/* 🔥 GET USER FROM SUPABASE USERS TABLE */
+async function loadUser(){
+
+  const { data: { user }, error } = await client.auth.getUser();
+
+  if(!user){
+    alert("Login first");
+    window.location.href = "login.html";
+    return;
+  }
+
+  const { data, error: err } = await client
+    .from("users")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if(err){
+    alert("User not found in DB");
+    return;
+  }
+
+  currentUser = data;
+
+  document.getElementById("userName").innerText = data.name;
+  document.getElementById("userMobile").innerText = data.mobile;
+  document.getElementById("wallet").innerText = data.wallet;
 }
 
-document.getElementById("userName").innerText = user.name;
-document.getElementById("userMobile").innerText = user.mobile;
-document.getElementById("wallet").innerText = user.wallet;
+loadUser();
 
 /* IMAGE UPLOAD */
 async function uploadImage(file){
@@ -165,8 +185,9 @@ async function addJob(){
       phone: phone,
       salary: salary,
 
-      // ✅ IMPORTANT FIX
-      user_mobile: user.mobile
+      // 🔥 FIXED: USERS TABLE DATA
+      user_id: currentUser.id,
+      user_mobile: currentUser.mobile
     }]);
 
   if(error){
