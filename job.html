@@ -82,7 +82,7 @@ button.view{
   border-radius:10px;
 }
 
-/* DETAIL PAGE */
+/* DETAIL */
 #jobDetail{
   display:none;
   padding:12px;
@@ -130,10 +130,10 @@ button.view{
 
 </div>
 
-<!-- JOB LIST -->
+<!-- LIST -->
 <div id="jobs"></div>
 
-<!-- DETAIL VIEW -->
+<!-- DETAIL -->
 <div id="jobDetail"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -167,24 +167,19 @@ async function loadJobs(){
   showJobs(allJobs);
 }
 
-/* STATES */
+/* FILTER FUNCTIONS SAME (UNCHANGED) */
 async function loadStates(){
   const { data } = await supabaseClient.from("jobs").select("state");
-
   let box = document.getElementById("state");
   let unique = [...new Set((data||[]).map(i=>i.state).filter(Boolean))];
-
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
   });
 }
 
-/* CITIES */
 async function loadCities(){
   let state = document.getElementById("state").value;
-
   let query = supabaseClient.from("jobs").select("city,state");
-
   if(state) query = query.eq("state", state);
 
   const { data } = await query;
@@ -199,12 +194,9 @@ async function loadCities(){
   });
 }
 
-/* AREAS */
 async function loadAreas(){
   let city = document.getElementById("city").value;
-
   let query = supabaseClient.from("jobs").select("area,city");
-
   if(city) query = query.eq("city", city);
 
   const { data } = await query;
@@ -219,25 +211,19 @@ async function loadAreas(){
   });
 }
 
-/* CATEGORY */
 async function loadCategories(){
   const { data } = await supabaseClient.from("jobs").select("category");
-
   let box = document.getElementById("category");
   let unique = [...new Set((data||[]).map(i=>i.category).filter(Boolean))];
-
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
   });
 }
 
-/* QUALIFICATION */
 async function loadQualifications(){
   const { data } = await supabaseClient.from("jobs").select("qualification");
-
   let box = document.getElementById("qualification");
   let unique = [...new Set((data||[]).map(i=>i.qualification).filter(Boolean))];
-
   unique.forEach(v=>{
     box.innerHTML += `<option value="${v}">${v}</option>`;
   });
@@ -263,7 +249,7 @@ function filterJobs(){
   showJobs(filtered);
 }
 
-/* SHOW JOB LIST */
+/* SHOW LIST */
 function showJobs(data){
 
   document.getElementById("jobs").style.display = "block";
@@ -291,7 +277,7 @@ function showJobs(data){
   });
 }
 
-/* DETAIL VIEW */
+/* DETAIL VIEW (FIXED) */
 function openDetail(j){
 
   document.getElementById("jobs").style.display = "none";
@@ -310,6 +296,10 @@ function openDetail(j){
 
       <p><b>City:</b> ${j.city || ''}</p>
       <p><b>State:</b> ${j.state || ''}</p>
+
+      <p><b>Description:</b> ${j.description || 'N/A'}</p>
+
+      <p><b>Mobile:</b> ${j.mobile || 'N/A'}</p>
 
       <button class="view" onclick="goBack()">
         ⬅ Back
