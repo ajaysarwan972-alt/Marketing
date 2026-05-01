@@ -2,284 +2,241 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Job Portal</title>
+<title>APNA BAZAR</title>
 
 <style>
 body{
   margin:0;
   font-family:Arial;
-  background:#eef2f7;
+  background:#f5f6fa;
 }
 
+/* HEADER */
 .header{
-  background:linear-gradient(135deg,#1e88e5,#1565c0);
-  color:white;
-  padding:18px;
-  text-align:center;
-  font-size:22px;
-  font-weight:bold;
-}
-
-.top-btn{padding:12px;}
-.top-btn button{
-  width:100%;
-  padding:12px;
-  background:#ff9800;
-  color:white;
-  border:none;
-  border-radius:10px;
-  font-size:15px;
-  font-weight:bold;
-}
-
-.box{padding:12px;}
-
-.row{
+  background:white;
+  padding:10px;
   display:flex;
   gap:10px;
-  margin-top:10px;
+  align-items:center;
 }
 
-select{
+.logo{
+  font-weight:bold;
+  color:#ff3c7e;
+}
+
+.search{
   flex:1;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ccc;
+}
+
+.search input{
+  width:100%;
+  padding:10px;
+  border-radius:20px;
+  border:1px solid #ddd;
+}
+
+/* CATEGORY */
+.categories{
+  display:flex;
+  overflow-x:auto;
+  gap:10px;
+  padding:10px;
   background:white;
+}
+
+.cat{
+  min-width:70px;
+  text-align:center;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.cat img{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+/* 🔥 BUTTON BAR */
+.actions{
+  display:flex;
+  justify-content:space-around;
+  padding:10px;
+  background:white;
+}
+
+.actions button{
+  padding:8px 12px;
+  border:none;
+  border-radius:20px;
+  font-size:12px;
+  color:white;
+  cursor:pointer;
+}
+
+.add{ background:#25D366; }
+.job{ background:#3498db; }
+.game{ background:#ff3c7e; }
+
+/* PRODUCTS */
+#products{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:8px;
+  padding:10px;
 }
 
 .card{
   background:white;
-  margin:12px;
-  padding:12px;
-  border-radius:15px;
+  border-radius:10px;
+  overflow:hidden;
 }
 
 .card img{
   width:100%;
-  height:170px;
-  object-fit:cover;
-  border-radius:12px;
+  height:100px;
+  object-fit:contain;
+  background:#fff;
 }
 
-.tag{
-  display:inline-block;
-  padding:4px 10px;
-  background:#e3f2fd;
-  color:#1976d2;
-  border-radius:20px;
+.card h3{
+  font-size:11px;
+  margin:5px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.card p{
+  margin:5px;
+  color:#ff3c7e;
+  font-weight:bold;
   font-size:12px;
-  margin:3px;
-}
-
-button.view{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  background:#1e88e5;
-  color:white;
-  border:none;
-  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">🚀 Job Finder</div>
-
-<div class="top-btn">
-  <button onclick="window.location.href='admin.html'">
-    ➕ Job Add (Admin Panel)
-  </button>
+<div class="header">
+  <div class="logo">APNA BAZAR</div>
+  <div class="search">
+    <input type="text" id="search" placeholder="Search category..." onkeyup="filterProducts()">
+  </div>
 </div>
 
-<div class="box">
+<div class="categories" id="catScroll"></div>
 
-  <!-- ROW 1 -->
-  <div class="row">
-    <select id="state" onchange="filterJobs(); loadCities();">
-      <option value="">Select State</option>
-    </select>
-
-    <select id="city" onchange="filterJobs(); loadAreas();">
-      <option value="">Select City</option>
-    </select>
-  </div>
-
-  <!-- ROW 2 -->
-  <div class="row">
-    <select id="area" onchange="filterJobs()">
-      <option value="">Select Area</option>
-    </select>
-
-    <select id="category" onchange="filterJobs()">
-      <option value="">Select Category</option>
-    </select>
-  </div>
-
-  <!-- ROW 3 -->
-  <div class="row">
-    <select id="qualification" onchange="filterJobs()">
-      <option value="">Select Qualification</option>
-    </select>
-  </div>
-
+<!-- 🔥 NEW BUTTONS -->
+<div class="actions">
+  <button class="add" onclick="location.href='login.html'">➕ Add Product</button>
+  <button class="job">💼 Job</button>
+  <button class="game" onclick="location.href='game.html'">🎮 Game</button>
 </div>
 
-<div id="jobs"></div>
+<div id="products">Loading...</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-let allJobs = [];
+let allProducts = [];
+let selectedCategory = "";
 
-window.onload = async function(){
-  await loadJobs();
-  await loadStates();
-  await loadCities();
-  await loadAreas();
-  await loadCategories();
-  await loadQualifications();
-}
+load();
 
-/* JOBS */
-async function loadJobs(){
-  const { data } = await supabaseClient
-    .from("jobs")
-    .select("*")
-    .order("id",{ascending:false});
+/* LOAD */
+async function load(){
+  const { data, error } = await client.from("products").select("*");
 
-  allJobs = data || [];
-  showJobs(allJobs);
-}
+  if(error){
+    document.getElementById("products").innerHTML = error.message;
+    return;
+  }
 
-/* STATES */
-async function loadStates(){
-  const { data } = await supabaseClient.from("jobs").select("state");
-
-  let box = document.getElementById("state");
-  let unique = [...new Set((data||[]).map(i=>i.state).filter(Boolean))];
-
-  unique.forEach(v=>{
-    box.innerHTML += `<option value="${v}">${v}</option>`;
-  });
-}
-
-/* CITIES */
-async function loadCities(){
-
-  let state = document.getElementById("state").value;
-
-  let query = supabaseClient.from("jobs").select("city,state");
-
-  if(state) query = query.eq("state", state);
-
-  const { data } = await query;
-
-  let box = document.getElementById("city");
-  box.innerHTML = `<option value="">Select City</option>`;
-
-  let unique = [...new Set((data||[]).map(i=>i.city).filter(Boolean))];
-
-  unique.forEach(v=>{
-    box.innerHTML += `<option value="${v}">${v}</option>`;
-  });
-}
-
-/* AREA (CITY BASED) */
-async function loadAreas(){
-
-  let city = document.getElementById("city").value;
-
-  let query = supabaseClient.from("jobs").select("area,city");
-
-  if(city) query = query.eq("city", city);
-
-  const { data } = await query;
-
-  let box = document.getElementById("area");
-  box.innerHTML = `<option value="">Select Area</option>`;
-
-  let unique = [...new Set((data||[]).map(i=>i.area).filter(Boolean))];
-
-  unique.forEach(v=>{
-    box.innerHTML += `<option value="${v}">${v}</option>`;
-  });
+  allProducts = data || [];
+  buildCategories();
+  show(allProducts);
 }
 
 /* CATEGORY */
-async function loadCategories(){
-  const { data } = await supabaseClient.from("jobs").select("category");
+function buildCategories(){
+  let scroll = document.getElementById("catScroll");
+  scroll.innerHTML = "";
 
-  let box = document.getElementById("category");
-  let unique = [...new Set((data||[]).map(i=>i.category).filter(Boolean))];
+  let map = {};
 
-  unique.forEach(v=>{
-    box.innerHTML += `<option value="${v}">${v}</option>`;
+  allProducts.forEach(p=>{
+    if(p.category && !map[p.category]){
+      map[p.category] = p.category_image || p.image;
+    }
   });
-}
 
-/* QUALIFICATION */
-async function loadQualifications(){
-  const { data } = await supabaseClient.from("jobs").select("qualification");
+  scroll.innerHTML += `
+    <div class="cat" onclick="selectCategory('')">
+      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">
+      <div>All</div>
+    </div>
+  `;
 
-  let box = document.getElementById("qualification");
-  let unique = [...new Set((data||[]).map(i=>i.qualification).filter(Boolean))];
-
-  unique.forEach(v=>{
-    box.innerHTML += `<option value="${v}">${v}</option>`;
-  });
-}
-
-/* FILTER */
-function filterJobs(){
-
-  let state = document.getElementById("state").value;
-  let city = document.getElementById("city").value;
-  let area = document.getElementById("area").value;
-  let category = document.getElementById("category").value;
-  let qualification = document.getElementById("qualification").value;
-
-  let filtered = allJobs.filter(j =>
-    (!state || j.state === state) &&
-    (!city || j.city === city) &&
-    (!area || j.area === area) &&
-    (!category || j.category === category) &&
-    (!qualification || j.qualification === qualification)
-  );
-
-  showJobs(filtered);
-}
-
-/* SHOW JOBS */
-function showJobs(data){
-
-  let box = document.getElementById("jobs");
-  box.innerHTML = "";
-
-  data.forEach(j=>{
-    box.innerHTML += `
-      <div class="card">
-        <img src="${j.image_url || 'https://via.placeholder.com/300'}">
-        <h3>${j.company_name || ''}</h3>
-
-        <span class="tag">${j.category || ''}</span>
-        <span class="tag">${j.qualification || ''}</span>
-
-        <p>${j.city || ''} | ${j.state || ''} | ${j.area || ''}</p>
-
-        <a href="job.html?id=${j.id}">
-          <button class="view">View Details</button>
-        </a>
+  Object.keys(map).forEach(c=>{
+    scroll.innerHTML += `
+      <div class="cat" onclick="selectCategory('${c}')">
+        <img src="${map[c]}">
+        <div>${c}</div>
       </div>
     `;
   });
+}
+
+function selectCategory(cat){
+  selectedCategory = cat;
+  filterProducts();
+}
+
+/* SHOW */
+function show(data){
+  let box = document.getElementById("products");
+  box.innerHTML = "";
+
+  if(!data.length){
+    box.innerHTML = "No Products";
+    return;
+  }
+
+  data.forEach(p=>{
+    box.innerHTML += `
+      <div class="card" onclick="openProduct('${p.id}')">
+        <img src="${p.image || 'https://via.placeholder.com/300'}">
+        <h3>${p.name || ''}</h3>
+        <p>₹${p.price || 0}</p>
+      </div>
+    `;
+  });
+}
+
+/* FILTER (CATEGORY SEARCH) */
+function filterProducts(){
+  let search = document.getElementById("search").value.toLowerCase().trim();
+
+  let filtered = allProducts.filter(p=>{
+    let cat = (p.category || "").toLowerCase();
+    return (!search || cat.includes(search))
+      && (!selectedCategory || p.category===selectedCategory);
+  });
+
+  show(filtered);
+}
+
+function openProduct(id){
+  window.location.href = "view.html?id=" + id;
 }
 </script>
 
