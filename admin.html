@@ -92,7 +92,7 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* 🔥 AUTO LOGIN CHECK */
+/* 🔥 AUTO LOGIN */
 let user = JSON.parse(localStorage.getItem("user"));
 if(user){
   window.location.href = "userhome.html";
@@ -109,7 +109,7 @@ function showLogin(){
   document.getElementById("loginBox").style.display = "block";
 }
 
-/* PASSWORD ENCODE */
+/* SIMPLE HASH */
 function hash(p){
   return btoa(p);
 }
@@ -126,28 +126,41 @@ async function signup(){
     return;
   }
 
-  let { data: existing } = await client
-    .from("users")
-    .select("*")
-    .eq("mobile", mobile);
+  try{
 
-  if(existing.length > 0){
-    alert("⚠️ Mobile already registered");
-    return;
-  }
+    // CHECK DUPLICATE
+    let { data: existing, error: checkError } = await client
+      .from("users")
+      .select("*")
+      .eq("mobile", mobile);
 
-  let { error } = await client.from("users").insert([{
-    name,
-    mobile,
-    password: hash(password),
-    wallet: 0
-  }]);
+    if(checkError){
+      alert("DB Error: " + checkError.message);
+      return;
+    }
 
-  if(error){
-    alert(error.message);
-  }else{
-    alert("✅ Signup Success");
-    showLogin();
+    if(existing.length > 0){
+      alert("⚠️ Mobile already registered");
+      return;
+    }
+
+    // INSERT USER
+    let { error } = await client.from("users").insert([{
+      name,
+      mobile,
+      password: hash(password),
+      wallet: 0
+    }]);
+
+    if(error){
+      alert("Signup Error: " + error.message);
+    }else{
+      alert("✅ Signup Success");
+      showLogin();
+    }
+
+  }catch(err){
+    alert("Error: " + err.message);
   }
 }
 
@@ -162,22 +175,33 @@ async function login(){
     return;
   }
 
-  let { data, error } = await client
-    .from("users")
-    .select("*")
-    .eq("mobile", mobile)
-    .eq("password", password)
-    .single();
+  try{
 
-  if(error || !data){
-    alert("❌ Wrong Login");
-    return;
+    let { data, error } = await client
+      .from("users")
+      .select("*")
+      .eq("mobile", mobile)
+      .eq("password", password)
+      .maybeSingle();   // 🔥 FIX
+
+    if(error){
+      alert("Login Error: " + error.message);
+      return;
+    }
+
+    if(!data){
+      alert("❌ Wrong Login");
+      return;
+    }
+
+    localStorage.setItem("user", JSON.stringify(data));
+
+    // 🔥 REDIRECT
+    window.location.href = "userhome.html";
+
+  }catch(err){
+    alert("Error: " + err.message);
   }
-
-  localStorage.setItem("user", JSON.stringify(data));
-
-  // 🔥 REDIRECT FIX
-  window.location.href = "userhome.html";
 }
 </script>
 
