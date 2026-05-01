@@ -14,189 +14,128 @@ body{
 .header{
   background:linear-gradient(135deg,#1e88e5,#1565c0);
   color:white;
-  padding:15px;
-}
-
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  padding:18px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
 }
 
 .box{
-  width:90%;
-  max-width:500px;
-  margin:auto;
+  margin:12px;
+  background:white;
   padding:15px;
+  border-radius:12px;
 }
 
-input, textarea{
+input, select{
   width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
   border:1px solid #ccc;
-}
-
-textarea{
-  height:100px;
 }
 
 button{
   width:100%;
   padding:12px;
-  margin-top:15px;
-  background:#1e88e5;
+  background:#4caf50;
   color:white;
   border:none;
   border-radius:10px;
+  font-size:15px;
   font-weight:bold;
+  margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <div class="top">
-    <div>
-      <div id="userName">User</div>
-      <div id="userMobile"></div>
-    </div>
-
-    <div>💰 ₹<span id="wallet">0</span></div>
-  </div>
-</div>
+<div class="header">➕ Add Job</div>
 
 <div class="box">
 
-<input type="text" id="company" placeholder="Company Name">
-<input type="file" id="imageFile" accept="image/*">
-<input type="text" id="title" placeholder="Job Title">
-<input type="text" id="salary" placeholder="Salary">
-<input type="text" id="state" placeholder="State">
-<input type="text" id="city" placeholder="City">
-<input type="text" id="jobtype" placeholder="Job Type">
-<input type="text" id="education" placeholder="Education">
-<textarea id="desc" placeholder="Job Description"></textarea>
-<input type="text" id="phone" placeholder="Mobile Number">
+  <input type="text" id="company" placeholder="Company Name">
 
-<button onclick="addJob()">Submit Job</button>
+  <input type="text" id="category" placeholder="Category">
+
+  <input type="text" id="qualification" placeholder="Qualification">
+
+  <input type="text" id="state" placeholder="State">
+
+  <input type="text" id="city" placeholder="City">
+
+  <input type="text" id="area" placeholder="Area">
+
+  <input type="number" id="salary" placeholder="Salary">
+
+  <input type="text" id="mobile" placeholder="Mobile Number">
+
+  <input type="text" id="image" placeholder="Image URL">
+
+  <button onclick="addJob()">🚀 Post Job</button>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-let currentUser = null;
+/* USER FROM LOCALSTORAGE */
+let user = JSON.parse(localStorage.getItem("user"));
 
-/* 🔥 GET USER FROM SUPABASE USERS TABLE */
-async function loadUser(){
-
-  const { data: { user }, error } = await client.auth.getUser();
-
-  if(!user){
-    alert("Login first");
-    window.location.href = "login.html";
-    return;
-  }
-
-  const { data, error: err } = await client
-    .from("users")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  if(err){
-    alert("User not found in DB");
-    return;
-  }
-
-  currentUser = data;
-
-  document.getElementById("userName").innerText = data.name;
-  document.getElementById("userMobile").innerText = data.mobile;
-  document.getElementById("wallet").innerText = data.wallet;
-}
-
-loadUser();
-
-/* IMAGE UPLOAD */
-async function uploadImage(file){
-  if(!file) return "";
-
-  let fileName = Date.now() + "_" + file.name;
-
-  let { error } = await client
-    .storage
-    .from("job-images")
-    .upload(fileName, file);
-
-  if(error){
-    alert("Image upload failed");
-    return "";
-  }
-
-  let { data } = client
-    .storage
-    .from("job-images")
-    .getPublicUrl(fileName);
-
-  return data.publicUrl;
+if(!user){
+  alert("Login first");
+  window.location.href = "login.html";
 }
 
 /* ADD JOB */
 async function addJob(){
 
   let company = document.getElementById("company").value;
-  let title = document.getElementById("title").value;
-  let salary = document.getElementById("salary").value;
+  let category = document.getElementById("category").value;
+  let qualification = document.getElementById("qualification").value;
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
-  let jobtype = document.getElementById("jobtype").value;
-  let education = document.getElementById("education").value;
-  let desc = document.getElementById("desc").value;
-  let phone = document.getElementById("phone").value;
-  let file = document.getElementById("imageFile").files[0];
+  let area = document.getElementById("area").value;
+  let salary = document.getElementById("salary").value;
+  let mobile = document.getElementById("mobile").value;
+  let image = document.getElementById("image").value;
 
-  if(!company || !title){
-    alert("Company & Title required");
+  if(!company || !category || !qualification || !state || !city || !area || !salary || !mobile){
+    alert("Fill all required fields");
     return;
   }
 
-  let imageUrl = await uploadImage(file);
-
-  let { error } = await client
+  const { error } = await client
     .from("jobs")
     .insert([{
+      user_id: user.id,
       company_name: company,
-      image_url: imageUrl,
-      title: title,
+      category: category,
+      qualification: qualification,
       state: state,
       city: city,
-      category: jobtype,
-      qualification: education,
-      description: desc,
-      phone: phone,
-      salary: salary,
-
-      // 🔥 FIXED: USERS TABLE DATA
-      user_id: currentUser.id,
-      user_mobile: currentUser.mobile
+      area: area,
+      salary: parseInt(salary),
+      mobile: mobile,
+      image_url: image
     }]);
 
   if(error){
     alert(error.message);
-  } else {
-    alert("Job Added Successfully 🚀");
-    window.location.href = "index.html";
+    return;
   }
+
+  alert("Job Posted Successfully 🚀");
+  window.location.href = "job.html";
 }
+
 </script>
 
 </body>
