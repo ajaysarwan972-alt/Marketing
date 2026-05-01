@@ -8,16 +8,17 @@
 body{
   font-family:Arial;
   background:#f5f6fa;
-  padding:20px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 
 .box{
   background:white;
   padding:20px;
   border-radius:12px;
-  max-width:320px;
-  margin:auto;
-  margin-top:60px;
+  width:320px;
 }
 
 input{
@@ -35,7 +36,6 @@ button{
   color:white;
   border:none;
   border-radius:8px;
-  margin-top:10px;
   font-weight:bold;
   cursor:pointer;
 }
@@ -43,9 +43,9 @@ button{
 .switch{
   text-align:center;
   margin-top:10px;
-  color:#555;
-  cursor:pointer;
   font-size:14px;
+  cursor:pointer;
+  color:#555;
 }
 
 #signupBox{ display:none; }
@@ -56,25 +56,23 @@ button{
 
 <div class="box">
 
-<!-- LOGIN -->
 <div id="loginBox">
   <h3>Login</h3>
   <input type="text" id="mobile" placeholder="Mobile">
   <input type="password" id="password" placeholder="Password">
   <button onclick="login()">Login</button>
 
-  <div class="switch" onclick="showSignup()">👉 New user? Register here</div>
+  <div class="switch" onclick="showSignup()">New user? Signup</div>
 </div>
 
-<!-- SIGNUP -->
 <div id="signupBox">
-  <h3>Register</h3>
+  <h3>Signup</h3>
   <input type="text" id="name" placeholder="Name">
   <input type="text" id="smobile" placeholder="Mobile">
   <input type="password" id="spassword" placeholder="Password">
   <button onclick="signup()">Signup</button>
 
-  <div class="switch" onclick="showLogin()">🔙 Back to Login</div>
+  <div class="switch" onclick="showLogin()">Back to Login</div>
 </div>
 
 </div>
@@ -83,36 +81,21 @@ button{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
-let client = null;
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
-/* INIT SAFE */
-document.addEventListener("DOMContentLoaded", function(){
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-  const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
-
-  if(!window.supabase){
-    alert("Supabase load nahi hua");
-    return;
-  }
-
-  client = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-  let user = JSON.parse(localStorage.getItem("user") || "null");
-  if(user){
-    window.location.href = "userhome.html";
-  }
-});
+const client = supabase.createClient(supabaseUrl, supabaseKey);
 
 /* UI */
 function showSignup(){
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("signupBox").style.display = "block";
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("signupBox").style.display="block";
 }
 
 function showLogin(){
-  document.getElementById("signupBox").style.display = "none";
-  document.getElementById("loginBox").style.display = "block";
+  document.getElementById("signupBox").style.display="none";
+  document.getElementById("loginBox").style.display="block";
 }
 
 /* HASH */
@@ -123,27 +106,22 @@ function hash(p){
 /* SIGNUP */
 async function signup(){
 
-  if(!client){
-    alert("DB not ready");
-    return;
-  }
-
-  let name = document.getElementById("name").value.trim();
-  let mobile = document.getElementById("smobile").value.trim();
+  let name = document.getElementById("name").value;
+  let mobile = document.getElementById("smobile").value;
   let password = document.getElementById("spassword").value;
 
   if(!name || !mobile || !password){
-    alert("❌ Fill all fields");
+    alert("Fill all fields");
     return;
   }
 
-  let { data: existing } = await client
+  let { data } = await client
     .from("users")
     .select("*")
     .eq("mobile", mobile);
 
-  if(existing && existing.length > 0){
-    alert("⚠️ Mobile already registered");
+  if(data.length > 0){
+    alert("Already registered");
     return;
   }
 
@@ -157,7 +135,7 @@ async function signup(){
   if(error){
     alert(error.message);
   }else{
-    alert("✅ Signup Success");
+    alert("Signup success");
     showLogin();
   }
 }
@@ -165,12 +143,7 @@ async function signup(){
 /* LOGIN */
 async function login(){
 
-  if(!client){
-    alert("DB not ready");
-    return;
-  }
-
-  let mobile = document.getElementById("mobile").value.trim();
+  let mobile = document.getElementById("mobile").value;
   let password = document.getElementById("password").value;
 
   let { data, error } = await client
@@ -184,14 +157,14 @@ async function login(){
     return;
   }
 
-  if(!data || data.length === 0){
-    alert("❌ Wrong Login");
+  if(data.length === 0){
+    alert("Wrong login");
     return;
   }
 
   localStorage.setItem("user", JSON.stringify(data[0]));
 
-  alert("✅ Login Success");
+  alert("Login success");
   window.location.href = "userhome.html";
 }
 </script>
