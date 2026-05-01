@@ -48,38 +48,53 @@ select{
   background:white;
 }
 
-.card{
-  background:white;
-  margin:12px;
-  padding:12px;
-  border-radius:15px;
+/* 🔥 GRID FIX (2 IN ONE ROW) */
+#jobs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  padding:10px;
 }
 
+/* 🔥 CARD SMALL */
+.card{
+  background:white;
+  border-radius:12px;
+  padding:8px;
+}
+
+/* 🔥 IMAGE SMALL + FULL COVER */
 .card img{
   width:100%;
-  height:170px;
+  height:120px;
   object-fit:cover;
-  border-radius:12px;
+  border-radius:10px;
+}
+
+.card h3{
+  font-size:14px;
+  margin:6px 0;
 }
 
 .tag{
   display:inline-block;
-  padding:4px 10px;
+  padding:3px 8px;
   background:#e3f2fd;
   color:#1976d2;
   border-radius:20px;
-  font-size:12px;
-  margin:3px;
+  font-size:11px;
+  margin:2px;
 }
 
 button.view{
   width:100%;
-  padding:10px;
-  margin-top:10px;
+  padding:8px;
+  margin-top:8px;
   background:#1e88e5;
   color:white;
   border:none;
-  border-radius:10px;
+  border-radius:8px;
+  font-size:12px;
 }
 </style>
 </head>
@@ -96,7 +111,6 @@ button.view{
 
 <div class="box">
 
-  <!-- ROW 1 -->
   <div class="row">
     <select id="state" onchange="filterJobs(); loadCities();">
       <option value="">Select State</option>
@@ -107,7 +121,6 @@ button.view{
     </select>
   </div>
 
-  <!-- ROW 2 -->
   <div class="row">
     <select id="area" onchange="filterJobs()">
       <option value="">Select Area</option>
@@ -118,7 +131,6 @@ button.view{
     </select>
   </div>
 
-  <!-- ROW 3 -->
   <div class="row">
     <select id="qualification" onchange="filterJobs()">
       <option value="">Select Qualification</option>
@@ -175,7 +187,6 @@ async function loadStates(){
 async function loadCities(){
 
   let state = document.getElementById("state").value;
-
   let query = supabaseClient.from("jobs").select("city,state");
 
   if(state) query = query.eq("state", state);
@@ -192,11 +203,10 @@ async function loadCities(){
   });
 }
 
-/* AREA (CITY BASED) */
+/* AREA */
 async function loadAreas(){
 
   let city = document.getElementById("city").value;
-
   let query = supabaseClient.from("jobs").select("area,city");
 
   if(city) query = query.eq("city", city);
