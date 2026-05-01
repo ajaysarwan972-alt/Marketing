@@ -7,7 +7,7 @@
 <style>
 body{
   font-family:Arial;
-  background:#f5f6fa;
+  background:#eef2f7;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -33,20 +33,20 @@ button{
   width:100%;
   padding:10px;
   margin-top:8px;
-  background:#ff3c7e;
-  color:white;
   border:none;
   border-radius:8px;
   font-weight:bold;
   cursor:pointer;
 }
 
+.loginBtn{ background:#ff3c7e; color:white; }
+.signupBtn{ background:#4caf50; color:white; }
+
 .switch{
   text-align:center;
   margin-top:10px;
   font-size:14px;
   cursor:pointer;
-  color:#444;
 }
 </style>
 </head>
@@ -55,33 +55,23 @@ button{
 
 <div class="box">
 
-<!-- LOGIN -->
 <div id="loginBox">
   <h3>Login</h3>
-
   <input type="text" id="mobile" placeholder="Mobile">
   <input type="password" id="password" placeholder="Password">
+  <button class="loginBtn" onclick="login()">Login</button>
 
-  <button onclick="login()">Login</button>
-
-  <div class="switch" onclick="showSignup()">
-    New user? Signup
-  </div>
+  <div class="switch" onclick="showSignup()">New user? Signup</div>
 </div>
 
-<!-- SIGNUP -->
 <div id="signupBox" style="display:none;">
   <h3>Signup</h3>
-
   <input type="text" id="name" placeholder="Name">
   <input type="text" id="smobile" placeholder="Mobile">
   <input type="password" id="spassword" placeholder="Password">
+  <button class="signupBtn" onclick="signup()">Signup</button>
 
-  <button onclick="signup()">Signup</button>
-
-  <div class="switch" onclick="showLogin()">
-    Already have account? Login
-  </div>
+  <div class="switch" onclick="showLogin()">Back to Login</div>
 </div>
 
 </div>
@@ -92,11 +82,12 @@ button{
 
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
+/* 🔥 YOUR ANON KEY */
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* UI TOGGLE */
+/* UI */
 function showSignup(){
   document.getElementById("loginBox").style.display="none";
   document.getElementById("signupBox").style.display="block";
@@ -107,7 +98,7 @@ function showLogin(){
   document.getElementById("loginBox").style.display="block";
 }
 
-/* HASH */
+/* hash */
 function hash(p){
   return btoa(p);
 }
@@ -125,7 +116,7 @@ async function signup(){
   }
 
   const { error } = await client
-    .from("login")
+    .from("users")
     .insert([{
       name,
       mobile,
@@ -149,7 +140,7 @@ async function login(){
   let password = document.getElementById("password").value;
 
   const { data, error } = await client
-    .from("login")
+    .from("users")
     .select("*")
     .eq("mobile", mobile)
     .eq("password", hash(password))
