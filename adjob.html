@@ -17,18 +17,12 @@ body{
   padding:15px;
 }
 
-/* USER INFO */
 .top{
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
 
-.wallet{
-  font-size:14px;
-}
-
-/* FORM */
 .box{
   width:90%;
   max-width:500px;
@@ -42,7 +36,6 @@ input, textarea{
   margin-top:10px;
   border-radius:10px;
   border:1px solid #ccc;
-  font-size:14px;
 }
 
 textarea{
@@ -71,9 +64,7 @@ button{
       <div id="userMobile"></div>
     </div>
 
-    <div class="wallet">
-      💰 ₹<span id="wallet">0</span>
-    </div>
+    <div>💰 ₹<span id="wallet">0</span></div>
   </div>
 </div>
 
@@ -82,7 +73,7 @@ button{
 <input type="text" id="company" placeholder="Company Name">
 <input type="file" id="imageFile" accept="image/*">
 <input type="text" id="title" placeholder="Job Title">
-<input type="text" id="salary" placeholder="Salary (10000-20000)">
+<input type="text" id="salary" placeholder="Salary">
 <input type="text" id="state" placeholder="State">
 <input type="text" id="city" placeholder="City">
 <input type="text" id="jobtype" placeholder="Job Type">
@@ -94,15 +85,16 @@ button{
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* 🔥 GET USER */
+/* USER */
 let user = JSON.parse(localStorage.getItem("user"));
 
 if(!user){
@@ -110,19 +102,17 @@ if(!user){
   window.location.href = "login.html";
 }
 
-/* SHOW USER */
 document.getElementById("userName").innerText = user.name;
 document.getElementById("userMobile").innerText = user.mobile;
 document.getElementById("wallet").innerText = user.wallet;
 
 /* IMAGE UPLOAD */
 async function uploadImage(file){
-
   if(!file) return "";
 
-  const fileName = Date.now() + "_" + file.name;
+  let fileName = Date.now() + "_" + file.name;
 
-  let { error } = await supabaseClient
+  let { error } = await client
     .storage
     .from("job-images")
     .upload(fileName, file);
@@ -132,7 +122,7 @@ async function uploadImage(file){
     return "";
   }
 
-  let { data } = supabaseClient
+  let { data } = client
     .storage
     .from("job-images")
     .getPublicUrl(fileName);
@@ -143,8 +133,6 @@ async function uploadImage(file){
 /* ADD JOB */
 async function addJob(){
 
-  let file = document.getElementById("imageFile").files[0];
-
   let company = document.getElementById("company").value;
   let title = document.getElementById("title").value;
   let salary = document.getElementById("salary").value;
@@ -154,6 +142,7 @@ async function addJob(){
   let education = document.getElementById("education").value;
   let desc = document.getElementById("desc").value;
   let phone = document.getElementById("phone").value;
+  let file = document.getElementById("imageFile").files[0];
 
   if(!company || !title){
     alert("Company & Title required");
@@ -162,7 +151,7 @@ async function addJob(){
 
   let imageUrl = await uploadImage(file);
 
-  let { error } = await supabaseClient
+  let { error } = await client
     .from("jobs")
     .insert([{
       company_name: company,
@@ -176,7 +165,7 @@ async function addJob(){
       phone: phone,
       salary: salary,
 
-      // 🔥 USER LINK (VERY IMPORTANT)
+      // ✅ IMPORTANT FIX
       user_mobile: user.mobile
     }]);
 
