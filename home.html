@@ -31,6 +31,21 @@ body{
   font-weight:bold;
 }
 
+/* 🔥 NEW ADD BUTTON */
+.addjobbtn{
+  margin:10px;
+}
+.addjobbtn button{
+  width:100%;
+  padding:12px;
+  background:#4caf50;
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-size:15px;
+  font-weight:bold;
+}
+
 /* TOP BUTTON */
 .top-btn{padding:12px;}
 .top-btn button{
@@ -100,10 +115,17 @@ button.view{
 
 <div class="header">🚀 Job Finder</div>
 
-<!-- 🔥 USER INFO ADDED -->
+<!-- 🔥 USER INFO -->
 <div class="userbar">
   <div>ID: <span id="uid">...</span></div>
   <div>Wallet: ₹<span id="wallet">0</span></div>
+</div>
+
+<!-- 🔥 JOB ADD BUTTON (NEW) -->
+<div class="addjobbtn">
+  <button onclick="window.location.href='adjob.html'">
+    ➕ Job Add
+  </button>
 </div>
 
 <div class="top-btn">
@@ -155,7 +177,6 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 let allJobs = [];
 
-/* 🔥 USER LOAD */
 let user = JSON.parse(localStorage.getItem("user"));
 
 if(user){
@@ -163,7 +184,6 @@ if(user){
   document.getElementById("wallet").innerText = user.wallet || 0;
 }
 
-/* LOAD PAGE */
 window.onload = async function(){
   await loadJobs();
   await loadStates();
@@ -173,7 +193,7 @@ window.onload = async function(){
   await loadQualifications();
 }
 
-/* JOBS */
+/* same functions (unchanged) */
 async function loadJobs(){
   const { data } = await supabaseClient
     .from("jobs")
@@ -184,7 +204,6 @@ async function loadJobs(){
   showJobs(allJobs);
 }
 
-/* STATES */
 async function loadStates(){
   const { data } = await supabaseClient.from("jobs").select("state");
 
@@ -196,11 +215,10 @@ async function loadStates(){
   });
 }
 
-/* CITIES */
 async function loadCities(){
   let state = document.getElementById("state").value;
-
   let query = supabaseClient.from("jobs").select("city,state");
+
   if(state) query = query.eq("state", state);
 
   const { data } = await query;
@@ -215,11 +233,10 @@ async function loadCities(){
   });
 }
 
-/* AREAS */
 async function loadAreas(){
   let city = document.getElementById("city").value;
-
   let query = supabaseClient.from("jobs").select("area,city");
+
   if(city) query = query.eq("city", city);
 
   const { data } = await query;
@@ -234,7 +251,6 @@ async function loadAreas(){
   });
 }
 
-/* CATEGORY */
 async function loadCategories(){
   const { data } = await supabaseClient.from("jobs").select("category");
 
@@ -246,7 +262,6 @@ async function loadCategories(){
   });
 }
 
-/* QUALIFICATION */
 async function loadQualifications(){
   const { data } = await supabaseClient.from("jobs").select("qualification");
 
@@ -258,7 +273,6 @@ async function loadQualifications(){
   });
 }
 
-/* FILTER */
 function filterJobs(){
 
   let state = document.getElementById("state").value;
@@ -278,7 +292,6 @@ function filterJobs(){
   showJobs(filtered);
 }
 
-/* SHOW JOBS */
 function showJobs(data){
 
   let box = document.getElementById("jobs");
