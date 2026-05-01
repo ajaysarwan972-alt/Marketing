@@ -46,6 +46,12 @@ button{
   font-weight:bold;
   margin-top:10px;
 }
+
+.preview{
+  width:100%;
+  margin-top:10px;
+  border-radius:10px;
+}
 </style>
 </head>
 
@@ -71,7 +77,10 @@ button{
 
   <input type="text" id="mobile" placeholder="Mobile Number">
 
-  <input type="text" id="image" placeholder="Image URL">
+  <!-- 🔥 IMAGE UPLOAD -->
+  <input type="file" id="imageFile" accept="image/*" onchange="previewImage(event)">
+
+  <img id="preview" class="preview" style="display:none">
 
   <button onclick="addJob()">🚀 Post Job</button>
 
@@ -86,12 +95,23 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* USER FROM LOCALSTORAGE */
+/* USER */
 let user = JSON.parse(localStorage.getItem("user"));
 
 if(!user){
   alert("Login first");
   window.location.href = "login.html";
+}
+
+/* IMAGE PREVIEW */
+function previewImage(event){
+  let file = event.target.files[0];
+  let img = document.getElementById("preview");
+
+  if(file){
+    img.src = URL.createObjectURL(file);
+    img.style.display = "block";
+  }
 }
 
 /* ADD JOB */
@@ -105,26 +125,50 @@ async function addJob(){
   let area = document.getElementById("area").value;
   let salary = document.getElementById("salary").value;
   let mobile = document.getElementById("mobile").value;
-  let image = document.getElementById("image").value;
+  let file = document.getElementById("imageFile").files[0];
 
   if(!company || !category || !qualification || !state || !city || !area || !salary || !mobile){
-    alert("Fill all required fields");
+    alert("Fill all fields");
     return;
   }
 
+  let imageUrl = "";
+
+  /* 🔥 UPLOAD IMAGE TO SUPABASE STORAGE */
+  if(file){
+
+    let fileName = Date.now() + "_" + file.name;
+
+    const { error: uploadError } = await client.storage
+      .from("job-images")
+      .upload(fileName, file);
+
+    if(uploadError){
+      alert("Image upload failed");
+      return;
+    }
+
+    const { data } = client.storage
+      .from("job-images")
+      .getPublicUrl(fileName);
+
+    imageUrl = data.publicUrl;
+  }
+
+  /* 🔥 INSERT JOB */
   const { error } = await client
     .from("jobs")
     .insert([{
       user_id: user.id,
       company_name: company,
-      category: category,
-      qualification: qualification,
-      state: state,
-      city: city,
-      area: area,
+      category,
+      qualification,
+      state,
+      city,
+      area,
       salary: parseInt(salary),
-      mobile: mobile,
-      image_url: image
+      mobile,
+      image_url: imageUrl
     }]);
 
   if(error){
