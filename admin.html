@@ -92,13 +92,13 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* 🔥 AUTO LOGIN */
+/* AUTO LOGIN */
 let user = JSON.parse(localStorage.getItem("user"));
 if(user){
   window.location.href = "userhome.html";
 }
 
-/* SWITCH UI */
+/* UI SWITCH */
 function showSignup(){
   document.getElementById("loginBox").style.display = "none";
   document.getElementById("signupBox").style.display = "block";
@@ -109,7 +109,7 @@ function showLogin(){
   document.getElementById("loginBox").style.display = "block";
 }
 
-/* SIMPLE HASH */
+/* PASSWORD */
 function hash(p){
   return btoa(p);
 }
@@ -126,41 +126,28 @@ async function signup(){
     return;
   }
 
-  try{
+  let { data: existing } = await client
+    .from("users")
+    .select("*")
+    .eq("mobile", mobile);
 
-    // CHECK DUPLICATE
-    let { data: existing, error: checkError } = await client
-      .from("users")
-      .select("*")
-      .eq("mobile", mobile);
+  if(existing && existing.length > 0){
+    alert("⚠️ Mobile already registered");
+    return;
+  }
 
-    if(checkError){
-      alert("DB Error: " + checkError.message);
-      return;
-    }
+  let { error } = await client.from("users").insert([{
+    name,
+    mobile,
+    password: hash(password),
+    wallet: 0
+  }]);
 
-    if(existing.length > 0){
-      alert("⚠️ Mobile already registered");
-      return;
-    }
-
-    // INSERT USER
-    let { error } = await client.from("users").insert([{
-      name,
-      mobile,
-      password: hash(password),
-      wallet: 0
-    }]);
-
-    if(error){
-      alert("Signup Error: " + error.message);
-    }else{
-      alert("✅ Signup Success");
-      showLogin();
-    }
-
-  }catch(err){
-    alert("Error: " + err.message);
+  if(error){
+    alert("Signup Error: " + error.message);
+  }else{
+    alert("✅ Signup Success");
+    showLogin();
   }
 }
 
@@ -168,40 +155,36 @@ async function signup(){
 async function login(){
 
   let mobile = document.getElementById("mobile").value.trim();
-  let password = hash(document.getElementById("password").value);
+  let password = document.getElementById("password").value;
 
   if(!mobile || !password){
     alert("❌ Fill login fields");
     return;
   }
 
-  try{
+  let { data, error } = await client
+    .from("users")
+    .select("*")
+    .eq("mobile", mobile)
+    .eq("password", hash(password));
 
-    let { data, error } = await client
-      .from("users")
-      .select("*")
-      .eq("mobile", mobile)
-      .eq("password", password)
-      .maybeSingle();   // 🔥 FIX
-
-    if(error){
-      alert("Login Error: " + error.message);
-      return;
-    }
-
-    if(!data){
-      alert("❌ Wrong Login");
-      return;
-    }
-
-    localStorage.setItem("user", JSON.stringify(data));
-
-    // 🔥 REDIRECT
-    window.location.href = "userhome.html";
-
-  }catch(err){
-    alert("Error: " + err.message);
+  if(error){
+    alert("DB Error: " + error.message);
+    return;
   }
+
+  if(!data || data.length === 0){
+    alert("❌ Wrong Login");
+    return;
+  }
+
+  let user = data[0];
+
+  localStorage.setItem("user", JSON.stringify(user));
+
+  alert("✅ Login Success");
+
+  window.location.href = "userhome.html";
 }
 </script>
 
