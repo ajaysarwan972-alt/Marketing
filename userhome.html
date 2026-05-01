@@ -11,7 +11,6 @@ body{
   background:#eef2f7;
 }
 
-/* HEADER */
 .header{
   background:linear-gradient(135deg,#1e88e5,#1565c0);
   color:white;
@@ -21,17 +20,12 @@ body{
   font-weight:bold;
 }
 
-/* USER BOX */
 .userbox{
   background:white;
   margin:10px;
   padding:15px;
   border-radius:12px;
   text-align:center;
-}
-
-.userbox h3{
-  margin:5px 0;
 }
 
 .wallet{
@@ -62,7 +56,6 @@ button{
   display:block;
 }
 
-/* JOB CARD */
 .card{
   background:white;
   margin:10px;
@@ -75,10 +68,6 @@ button{
   height:150px;
   object-fit:cover;
   border-radius:10px;
-}
-
-.card h3{
-  margin:8px 0;
 }
 
 .tag{
@@ -98,20 +87,18 @@ button{
 <div class="header">👤 My Dashboard</div>
 
 <div class="userbox">
-  <h3 id="uname"></h3>
+  <h3 id="uname">Loading...</h3>
   <div>ID: <span id="uid"></span></div>
-  <div class="wallet">Wallet: ₹<span id="wallet"></span></div>
+  <div class="wallet">Wallet: ₹<span id="wallet">0</span></div>
 
   <button class="addmoney" onclick="addMoney()">➕ Add Money</button>
 </div>
 
-<!-- 🔥 BUTTONS -->
-<button class="addjob" onclick="goAddJob()">➕ Add Job (Form)</button>
-<button class="addjob" onclick="goAdJob()">🧑‍💼 Job Page</button>
+<button class="addjob" onclick="goAddJob()">➕ Add Job</button>
 
 <div id="jobs"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
 
@@ -120,36 +107,56 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-let user = JSON.parse(localStorage.getItem("user"));
+let userData = null;
 
-/* 🔥 CHECK LOGIN */
-if(!user){
-  alert("Login first");
-  window.location.href = "login.html";
+/* 🔥 LOAD USER FROM SUPABASE */
+async function loadUser(){
+
+  const { data: { user: authUser }, error } = await client.auth.getUser();
+
+  if(!authUser){
+    alert("Login first");
+    window.location.href = "login.html";
+    return;
+  }
+
+  const { data, error: err } = await client
+    .from("users")
+    .select("*")
+    .eq("id", authUser.id)
+    .single();
+
+  if(err || !data){
+    alert("User not found in users table");
+    return;
+  }
+
+  userData = data;
+
+  document.getElementById("uname").innerText = data.name;
+  document.getElementById("uid").innerText = data.id;
+  document.getElementById("wallet").innerText = data.wallet || 0;
+
+  loadJobs();
 }
 
-/* SHOW USER */
-document.getElementById("uname").innerText = user.name;
-document.getElementById("uid").innerText = user.id;
-document.getElementById("wallet").innerText = user.wallet || 0;
+loadUser();
 
-/* LOAD USER JOBS */
-loadJobs();
-
+/* 🔥 LOAD JOBS */
 async function loadJobs(){
 
   const { data, error } = await client
     .from("jobs")
     .select("*")
-    .eq("user_id", user.id)
-
-  if(error){
-    document.getElementById("jobs").innerHTML = error.message;
-    return;
-  }
+    .eq("user_id", userData.id);
 
   let box = document.getElementById("jobs");
   box.innerHTML = "";
+
+  if(error){
+    box.innerHTML = error.message;
+    return;
+  }
 
   if(!data.length){
     box.innerHTML = "<p style='text-align:center'>No Jobs Added</p>";
@@ -160,7 +167,6 @@ async function loadJobs(){
     box.innerHTML += `
       <div class="card">
         <img src="${j.image_url || 'https://via.placeholder.com/300'}">
-
         <h3>${j.company_name || ''}</h3>
 
         <span class="tag">${j.category || ''}</span>
@@ -174,18 +180,13 @@ async function loadJobs(){
   });
 }
 
-/* NAVIGATION */
+/* NAV */
 function addMoney(){
   window.location.href = "admoney.html";
 }
 
 function goAddJob(){
   window.location.href = "addjob.html";
-}
-
-/* 🔥 NEW BUTTON FUNCTION */
-function goAdJob(){
-  window.location.href = "adjob.html";
 }
 
 </script>
