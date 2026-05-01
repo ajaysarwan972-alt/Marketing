@@ -80,8 +80,9 @@ button{
 
 <script>
 
+/* 🔥 SUPABASE CONFIG (KEY ADDED) */
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "YOUR_ANON_KEY"; // 🔥 real key yaha daal
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -96,12 +97,12 @@ function showLogin(){
   document.getElementById("loginBox").style.display="block";
 }
 
-/* 🔥 MOBILE → EMAIL CONVERT */
+/* MOBILE → EMAIL */
 function toEmail(mobile){
   return mobile + "@app.com";
 }
 
-/* 🔥 SIGNUP */
+/* SIGNUP */
 async function signup(){
 
   let name = document.getElementById("name").value;
@@ -127,12 +128,6 @@ async function signup(){
 
   const user = data.user;
 
-  if(!user){
-    alert("Signup failed");
-    return;
-  }
-
-  // 🔥 SAVE IN USERS TABLE
   const { error: dbError } = await client.from("users").insert([{
     id: user.id,
     name: name,
@@ -149,7 +144,7 @@ async function signup(){
   showLogin();
 }
 
-/* 🔥 LOGIN */
+/* LOGIN */
 async function login(){
 
   let mobile = document.getElementById("mobile").value;
@@ -167,13 +162,7 @@ async function login(){
     return;
   }
 
-  if(!data.user){
-    alert("Login failed");
-    return;
-  }
-
   alert("Login success");
-
   window.location.href = "./userhome.html";
 }
 
