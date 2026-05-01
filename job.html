@@ -20,9 +20,7 @@ body{
   font-weight:bold;
 }
 
-.container{
-  padding:12px;
-}
+.container{ padding:12px; }
 
 .card{
   background:white;
@@ -82,32 +80,22 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// URL se ID
-const params = new URLSearchParams(window.location.search);
-const id = (params.get("id") || "").trim();
-
-console.log("URL ID:", id);
-
 window.onload = loadJob;
 
 async function loadJob(){
 
-  if(!id){
-    document.getElementById("job").innerHTML = "❌ Job ID missing";
-    return;
-  }
-
   const { data, error } = await supabase
     .from("jobs")
     .select("*")
-    .eq("id", id)
+    .order("created_at", { ascending: false })
+    .limit(1)
     .single();
 
   console.log("DATA:", data);
   console.log("ERROR:", error);
 
   if(error || !data){
-    document.getElementById("job").innerHTML = "❌ Job not found";
+    document.getElementById("job").innerHTML = "❌ No job found";
     return;
   }
 
@@ -121,7 +109,7 @@ function showJob(j){
 
       <img src="${j.image_url || 'https://via.placeholder.com/300'}">
 
-      <h2>${j.company_name || 'Company'}</h2>
+      <h2>${j.company_name || ''}</h2>
 
       <span class="tag">${j.category || ''}</span>
       <span class="tag">${j.qualification || ''}</span>
