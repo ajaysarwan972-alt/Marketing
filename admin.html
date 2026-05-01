@@ -58,7 +58,7 @@ button{
 <!-- LOGIN -->
 <div id="loginBox">
   <h3>Login</h3>
-  <input type="email" id="email" placeholder="Email">
+  <input type="text" id="mobile" placeholder="Mobile Number">
   <input type="password" id="password" placeholder="Password">
   <button onclick="login()">Login</button>
   <div class="switch" onclick="showSignup()">New user? Signup</div>
@@ -68,7 +68,7 @@ button{
 <div id="signupBox">
   <h3>Signup</h3>
   <input type="text" id="name" placeholder="Name">
-  <input type="email" id="semail" placeholder="Email">
+  <input type="text" id="smobile" placeholder="Mobile Number">
   <input type="password" id="spassword" placeholder="Password">
   <button onclick="signup()">Signup</button>
   <div class="switch" onclick="showLogin()">Back to Login</div>
@@ -81,7 +81,7 @@ button{
 <script>
 
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-const supabaseKey = "YOUR_ANON_KEY"; // 🔥 yaha real anon key daal
+const supabaseKey = "YOUR_ANON_KEY"; // 🔥 real key yaha daal
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -96,17 +96,24 @@ function showLogin(){
   document.getElementById("loginBox").style.display="block";
 }
 
+/* 🔥 MOBILE → EMAIL CONVERT */
+function toEmail(mobile){
+  return mobile + "@app.com";
+}
+
 /* 🔥 SIGNUP */
 async function signup(){
 
   let name = document.getElementById("name").value;
-  let email = document.getElementById("semail").value;
+  let mobile = document.getElementById("smobile").value;
   let password = document.getElementById("spassword").value;
 
-  if(!name || !email || !password){
+  if(!name || !mobile || !password){
     alert("Fill all fields");
     return;
   }
+
+  const email = toEmail(mobile);
 
   const { data, error } = await client.auth.signUp({
     email,
@@ -125,14 +132,13 @@ async function signup(){
     return;
   }
 
-  // 🔥 users table insert
-  const { error: dbError } = await client
-    .from("users")
-    .insert([{
-      id: user.id,
-      name: name,
-      wallet: 0
-    }]);
+  // 🔥 SAVE IN USERS TABLE
+  const { error: dbError } = await client.from("users").insert([{
+    id: user.id,
+    name: name,
+    mobile: mobile,
+    wallet: 0
+  }]);
 
   if(dbError){
     alert(dbError.message);
@@ -146,8 +152,10 @@ async function signup(){
 /* 🔥 LOGIN */
 async function login(){
 
-  let email = document.getElementById("email").value;
+  let mobile = document.getElementById("mobile").value;
   let password = document.getElementById("password").value;
+
+  const email = toEmail(mobile);
 
   const { data, error } = await client.auth.signInWithPassword({
     email,
@@ -166,7 +174,6 @@ async function login(){
 
   alert("Login success");
 
-  // 🔥 FIXED PATH
   window.location.href = "./userhome.html";
 }
 
