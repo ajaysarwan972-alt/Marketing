@@ -47,7 +47,6 @@ button{
   font-size:14px;
 }
 
-/* hidden signup */
 #signupBox{
   display:none;
 }
@@ -92,6 +91,12 @@ const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+/* 🔥 AUTO LOGIN CHECK */
+let user = JSON.parse(localStorage.getItem("user"));
+if(user){
+  window.location.href = "userhome.html";
+}
 
 /* SWITCH UI */
 function showSignup(){
@@ -171,7 +176,8 @@ async function login(){
 
   localStorage.setItem("user", JSON.stringify(data));
 
-  window.location.href = "adjob.html";
+  // 🔥 REDIRECT FIX
+  window.location.href = "userhome.html";
 }
 </script>
 
