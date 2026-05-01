@@ -71,6 +71,9 @@ button:active{
 
 <input type="text" id="title" placeholder="Job Title">
 
+<!-- 🔥 ADDED SALARY FIELD -->
+<input type="text" id="salary" placeholder="Salary (e.g. 10000-20000)">
+
 <input type="text" id="state" placeholder="State">
 <input type="text" id="city" placeholder="City">
 <input type="text" id="jobtype" placeholder="Job Type">
@@ -84,15 +87,12 @@ button:active{
 
 </div>
 
-<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-/* 🔥 SUPABASE CONFIG */
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
-/* ✅ YOUR ANON KEY */
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -130,6 +130,7 @@ async function addJob(){
 
   let company = document.getElementById("company").value;
   let title = document.getElementById("title").value;
+  let salary = document.getElementById("salary").value; // 🔥 ADDED
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
   let jobtype = document.getElementById("jobtype").value;
@@ -155,7 +156,10 @@ async function addJob(){
       category: jobtype,
       qualification: education,
       description: desc,
-      phone: phone
+      phone: phone,
+
+      // 🔥 ADDED
+      salary: salary
     }]);
 
   if(error){
@@ -166,6 +170,7 @@ async function addJob(){
     window.location.href = "index.html";
   }
 }
+
 </script>
 
 </body>
