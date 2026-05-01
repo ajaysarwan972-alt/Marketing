@@ -14,12 +14,21 @@ body{
 .header{
   background:linear-gradient(135deg,#1e88e5,#1565c0);
   color:white;
-  padding:18px;
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
+  padding:15px;
 }
 
+/* USER INFO */
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.wallet{
+  font-size:14px;
+}
+
+/* FORM */
 .box{
   width:90%;
   max-width:500px;
@@ -34,12 +43,10 @@ input, textarea{
   border-radius:10px;
   border:1px solid #ccc;
   font-size:14px;
-  outline:none;
 }
 
 textarea{
   height:100px;
-  resize:none;
 }
 
 button{
@@ -52,35 +59,35 @@ button{
   border-radius:10px;
   font-weight:bold;
 }
-
-button:active{
-  transform:scale(0.98);
-}
 </style>
 </head>
 
 <body>
 
-<div class="header">➕ Add Job</div>
+<div class="header">
+  <div class="top">
+    <div>
+      <div id="userName">User</div>
+      <div id="userMobile"></div>
+    </div>
+
+    <div class="wallet">
+      💰 ₹<span id="wallet">0</span>
+    </div>
+  </div>
+</div>
 
 <div class="box">
 
 <input type="text" id="company" placeholder="Company Name">
-
 <input type="file" id="imageFile" accept="image/*">
-
 <input type="text" id="title" placeholder="Job Title">
-
-<!-- 🔥 ADDED SALARY FIELD -->
-<input type="text" id="salary" placeholder="Salary (e.g. 10000-20000)">
-
+<input type="text" id="salary" placeholder="Salary (10000-20000)">
 <input type="text" id="state" placeholder="State">
 <input type="text" id="city" placeholder="City">
 <input type="text" id="jobtype" placeholder="Job Type">
 <input type="text" id="education" placeholder="Education">
-
 <textarea id="desc" placeholder="Job Description"></textarea>
-
 <input type="text" id="phone" placeholder="Mobile Number">
 
 <button onclick="addJob()">Submit Job</button>
@@ -90,12 +97,23 @@ button:active{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
-
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+/* 🔥 GET USER */
+let user = JSON.parse(localStorage.getItem("user"));
+
+if(!user){
+  alert("Login first");
+  window.location.href = "login.html";
+}
+
+/* SHOW USER */
+document.getElementById("userName").innerText = user.name;
+document.getElementById("userMobile").innerText = user.mobile;
+document.getElementById("wallet").innerText = user.wallet;
 
 /* IMAGE UPLOAD */
 async function uploadImage(file){
@@ -110,7 +128,6 @@ async function uploadImage(file){
     .upload(fileName, file);
 
   if(error){
-    console.log(error);
     alert("Image upload failed");
     return "";
   }
@@ -130,7 +147,7 @@ async function addJob(){
 
   let company = document.getElementById("company").value;
   let title = document.getElementById("title").value;
-  let salary = document.getElementById("salary").value; // 🔥 ADDED
+  let salary = document.getElementById("salary").value;
   let state = document.getElementById("state").value;
   let city = document.getElementById("city").value;
   let jobtype = document.getElementById("jobtype").value;
@@ -157,20 +174,19 @@ async function addJob(){
       qualification: education,
       description: desc,
       phone: phone,
+      salary: salary,
 
-      // 🔥 ADDED
-      salary: salary
+      // 🔥 USER LINK (VERY IMPORTANT)
+      user_mobile: user.mobile
     }]);
 
   if(error){
-    console.log(error);
     alert(error.message);
   } else {
     alert("Job Added Successfully 🚀");
     window.location.href = "index.html";
   }
 }
-
 </script>
 
 </body>
