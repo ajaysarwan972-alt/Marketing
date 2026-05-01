@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f5f6fa;
+}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#ff3c7e,#ff6b3d);
+  color:white;
+  padding:15px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.wallet{
+  font-size:14px;
+}
+
+/* BUTTON */
+.btn{
+  background:#25D366;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  margin-top:10px;
+}
+
+/* PRODUCTS */
+#products{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  padding:10px;
+}
+
+.card{
+  background:white;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.card img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+}
+
+.card h3{
+  font-size:13px;
+  margin:5px;
+}
+
+.card p{
+  margin:5px;
+  color:#ff3c7e;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <div class="top">
+    <div>
+      <div id="userName">User</div>
+      <div id="userMobile"></div>
+    </div>
+
+    <div class="wallet">
+      💰 ₹<span id="wallet">0</span>
+    </div>
+  </div>
+
+  <button class="btn" onclick="window.location.href='addmoney.html'">
+    ➕ Add Money
+  </button>
+</div>
+
+<div id="products">Loading...</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+
+const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+/* 🔥 GET USER */
+let user = JSON.parse(localStorage.getItem("user"));
+
+if(!user){
+  alert("Login first");
+  window.location.href = "login.html";
+}
+
+/* SHOW USER */
+document.getElementById("userName").innerText = user.name;
+document.getElementById("userMobile").innerText = user.mobile;
+document.getElementById("wallet").innerText = user.wallet;
+
+/* LOAD USER PRODUCTS */
+load();
+
+async function load(){
+
+  // 🔥 IMPORTANT: products table me user_mobile ya user_id hona chahiye
+  const { data, error } = await client
+    .from("products")
+    .select("*")
+    .eq("mobile", user.mobile);  // 👈 yahi filter hai
+
+  if(error){
+    document.getElementById("products").innerHTML = error.message;
+    return;
+  }
+
+  show(data || []);
+}
+
+/* SHOW */
+function show(data){
+
+  let box = document.getElementById("products");
+  box.innerHTML = "";
+
+  if(!data.length){
+    box.innerHTML = "❌ No Products Added";
+    return;
+  }
+
+  data.forEach(p=>{
+    box.innerHTML += `
+      <div class="card">
+        <img src="${p.image || 'https://via.placeholder.com/300'}">
+        <h3>${p.name || ''}</h3>
+        <p>₹${p.price || 0}</p>
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
