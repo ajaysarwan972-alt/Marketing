@@ -36,10 +36,20 @@ button{
   border-radius:8px;
   margin-top:10px;
   font-weight:bold;
+  cursor:pointer;
 }
 
-hr{
-  margin:20px 0;
+.switch{
+  text-align:center;
+  margin-top:10px;
+  color:#555;
+  cursor:pointer;
+  font-size:14px;
+}
+
+/* hidden signup */
+#signupBox{
+  display:none;
 }
 </style>
 </head>
@@ -48,18 +58,30 @@ hr{
 
 <div class="box">
 
-<h3>Login</h3>
-<input type="text" id="mobile" placeholder="Mobile">
-<input type="password" id="password" placeholder="Password">
-<button onclick="login()">Login</button>
+<!-- LOGIN -->
+<div id="loginBox">
+  <h3>Login</h3>
+  <input type="text" id="mobile" placeholder="Mobile">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="login()">Login</button>
 
-<hr>
+  <div class="switch" onclick="showSignup()">
+    👉 New user? Register here
+  </div>
+</div>
 
-<h3>Signup</h3>
-<input type="text" id="name" placeholder="Name">
-<input type="text" id="smobile" placeholder="Mobile">
-<input type="password" id="spassword" placeholder="Password">
-<button onclick="signup()">Signup</button>
+<!-- SIGNUP -->
+<div id="signupBox">
+  <h3>Register</h3>
+  <input type="text" id="name" placeholder="Name">
+  <input type="text" id="smobile" placeholder="Mobile">
+  <input type="password" id="spassword" placeholder="Password">
+  <button onclick="signup()">Signup</button>
+
+  <div class="switch" onclick="showLogin()">
+    🔙 Back to Login
+  </div>
+</div>
 
 </div>
 
@@ -71,7 +93,18 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* SIMPLE PASSWORD ENCODE */
+/* SWITCH UI */
+function showSignup(){
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("signupBox").style.display = "block";
+}
+
+function showLogin(){
+  document.getElementById("signupBox").style.display = "none";
+  document.getElementById("loginBox").style.display = "block";
+}
+
+/* PASSWORD ENCODE */
 function hash(p){
   return btoa(p);
 }
@@ -88,7 +121,6 @@ async function signup(){
     return;
   }
 
-  // 🔥 CHECK DUPLICATE MOBILE
   let { data: existing } = await client
     .from("users")
     .select("*")
@@ -110,10 +142,7 @@ async function signup(){
     alert(error.message);
   }else{
     alert("✅ Signup Success");
-
-    // auto fill login fields
-    document.getElementById("mobile").value = mobile;
-    document.getElementById("password").value = password;
+    showLogin();
   }
 }
 
@@ -140,10 +169,8 @@ async function login(){
     return;
   }
 
-  // SAVE USER
   localStorage.setItem("user", JSON.stringify(data));
 
-  // 🔥 REDIRECT
   window.location.href = "adjob.html";
 }
 </script>
