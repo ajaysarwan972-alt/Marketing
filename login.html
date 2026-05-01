@@ -40,6 +40,14 @@ button{
   font-weight:bold;
   cursor:pointer;
 }
+
+.switch{
+  text-align:center;
+  margin-top:10px;
+  font-size:14px;
+  cursor:pointer;
+  color:#444;
+}
 </style>
 </head>
 
@@ -47,14 +55,34 @@ button{
 
 <div class="box">
 
-<h3>Login / Signup</h3>
+<!-- LOGIN -->
+<div id="loginBox">
+  <h3>Login</h3>
 
-<input type="text" id="name" placeholder="Name (Signup only)">
-<input type="text" id="mobile" placeholder="Mobile">
-<input type="password" id="password" placeholder="Password">
+  <input type="text" id="mobile" placeholder="Mobile">
+  <input type="password" id="password" placeholder="Password">
 
-<button onclick="signup()">Signup</button>
-<button onclick="login()">Login</button>
+  <button onclick="login()">Login</button>
+
+  <div class="switch" onclick="showSignup()">
+    New user? Signup
+  </div>
+</div>
+
+<!-- SIGNUP -->
+<div id="signupBox" style="display:none;">
+  <h3>Signup</h3>
+
+  <input type="text" id="name" placeholder="Name">
+  <input type="text" id="smobile" placeholder="Mobile">
+  <input type="password" id="spassword" placeholder="Password">
+
+  <button onclick="signup()">Signup</button>
+
+  <div class="switch" onclick="showLogin()">
+    Already have account? Login
+  </div>
+</div>
 
 </div>
 
@@ -64,12 +92,22 @@ button{
 
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
-/* 🔥 ANON KEY */
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-/* hash */
+/* UI TOGGLE */
+function showSignup(){
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("signupBox").style.display="block";
+}
+
+function showLogin(){
+  document.getElementById("signupBox").style.display="none";
+  document.getElementById("loginBox").style.display="block";
+}
+
+/* HASH */
 function hash(p){
   return btoa(p);
 }
@@ -78,8 +116,8 @@ function hash(p){
 async function signup(){
 
   let name = document.getElementById("name").value;
-  let mobile = document.getElementById("mobile").value;
-  let password = document.getElementById("password").value;
+  let mobile = document.getElementById("smobile").value;
+  let password = document.getElementById("spassword").value;
 
   if(!name || !mobile || !password){
     alert("Fill all fields");
@@ -89,8 +127,8 @@ async function signup(){
   const { error } = await client
     .from("login")
     .insert([{
-      name: name,
-      mobile: mobile,
+      name,
+      mobile,
       password: hash(password),
       wallet: 0
     }]);
@@ -101,6 +139,7 @@ async function signup(){
   }
 
   alert("Signup success");
+  showLogin();
 }
 
 /* LOGIN */
@@ -125,7 +164,6 @@ async function login(){
 
   alert("Login success");
 
-  /* 🔥 HOME PAGE OPEN */
   window.location.href = "home.html";
 }
 
