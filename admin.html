@@ -37,7 +37,6 @@ button{
   border:none;
   border-radius:8px;
   font-weight:bold;
-  cursor:pointer;
 }
 
 .switch{
@@ -56,22 +55,22 @@ button{
 
 <div class="box">
 
+<!-- LOGIN -->
 <div id="loginBox">
   <h3>Login</h3>
-  <input type="text" id="mobile" placeholder="Mobile">
+  <input type="email" id="email" placeholder="Email">
   <input type="password" id="password" placeholder="Password">
   <button onclick="login()">Login</button>
-
   <div class="switch" onclick="showSignup()">New user? Signup</div>
 </div>
 
+<!-- SIGNUP -->
 <div id="signupBox">
   <h3>Signup</h3>
   <input type="text" id="name" placeholder="Name">
-  <input type="text" id="smobile" placeholder="Mobile">
+  <input type="email" id="semail" placeholder="Email">
   <input type="password" id="spassword" placeholder="Password">
   <button onclick="signup()">Signup</button>
-
   <div class="switch" onclick="showLogin()">Back to Login</div>
 </div>
 
@@ -80,10 +79,9 @@ button{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
-const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 
-/* 🔥 YOUR ANON KEY */
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
+const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
+const supabaseKey = "YOUR_ANON_KEY";
 
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -98,79 +96,66 @@ function showLogin(){
   document.getElementById("loginBox").style.display="block";
 }
 
-/* HASH (simple demo) */
-function hash(p){
-  return btoa(p);
-}
-
-/* SIGNUP */
+/* 🔥 SIGNUP (AUTH + USERS TABLE) */
 async function signup(){
 
   let name = document.getElementById("name").value;
-  let mobile = document.getElementById("smobile").value;
+  let email = document.getElementById("semail").value;
   let password = document.getElementById("spassword").value;
 
-  if(!name || !mobile || !password){
+  if(!name || !email || !password){
     alert("Fill all fields");
     return;
   }
 
-  let { data } = await client
-    .from("users")
-    .select("*")
-    .eq("mobile", mobile);
-
-  if(data.length > 0){
-    alert("Already registered");
-    return;
-  }
-
-  let { error } = await client
-    .from("users")
-    .insert([{
-      id: Date.now().toString(),
-      name: name,
-      mobile: mobile,
-      password: hash(password),
-      wallet: 0
-    }]);
+  const { data, error } = await client.auth.signUp({
+    email,
+    password
+  });
 
   if(error){
     alert(error.message);
-  } else {
-    alert("Signup success");
-    showLogin();
+    return;
   }
+
+  const user = data.user;
+
+  // save in users table
+  const { error: dbError } = await client.from("users").insert([{
+    id: user.id,
+    name: name,
+    wallet: 0
+  }]);
+
+  if(dbError){
+    alert(dbError.message);
+    return;
+  }
+
+  alert("Signup successful");
+  showLogin();
 }
 
-/* LOGIN */
+/* 🔥 LOGIN */
 async function login(){
 
-  let mobile = document.getElementById("mobile").value;
+  let email = document.getElementById("email").value;
   let password = document.getElementById("password").value;
 
-  let { data, error } = await client
-    .from("users")
-    .select("*")
-    .eq("mobile", mobile)
-    .eq("password", hash(password));
+  const { data, error } = await client.auth.signInWithPassword({
+    email,
+    password
+  });
 
   if(error){
     alert(error.message);
     return;
   }
-
-  if(data.length === 0){
-    alert("Wrong login");
-    return;
-  }
-
-  /* 🔥 SAVE CURRENT USER */
-  localStorage.setItem("user", JSON.stringify(data[0]));
 
   alert("Login success");
   window.location.href = "userhome.html";
 }
+
 </script>
 
 </body>
