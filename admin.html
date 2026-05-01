@@ -17,6 +17,7 @@ body{
   border-radius:12px;
   max-width:320px;
   margin:auto;
+  margin-top:60px;
 }
 
 input{
@@ -84,16 +85,23 @@ button{
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- ✅ FIXED SUPABASE CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
 const supabaseUrl = "https://katbdbzoufiblnnsoxkk.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdGJkYnpvdWZpYmxubnNveGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDY1NDQsImV4cCI6MjA4OTY4MjU0NH0.9_4KaSEJf4TOVD67ocNBI5UypgkfpZvdB-sKqEtVBdM";
 
-const client = supabase.createClient(supabaseUrl, supabaseKey);
+let client = null;
 
-/* AUTO LOGIN */
-let user = JSON.parse(localStorage.getItem("user"));
+if (window.supabase) {
+  client = supabase.createClient(supabaseUrl, supabaseKey);
+} else {
+  alert("Supabase load nahi hua. Internet check karo.");
+}
+
+/* AUTO LOGIN SAFE */
+let user = JSON.parse(localStorage.getItem("user") || "null");
 if(user){
   window.location.href = "userhome.html";
 }
@@ -109,13 +117,18 @@ function showLogin(){
   document.getElementById("loginBox").style.display = "block";
 }
 
-/* PASSWORD */
+/* PASSWORD HASH */
 function hash(p){
   return btoa(p);
 }
 
 /* SIGNUP */
 async function signup(){
+
+  if(!client){
+    alert("Database not ready");
+    return;
+  }
 
   let name = document.getElementById("name").value.trim();
   let mobile = document.getElementById("smobile").value.trim();
@@ -153,6 +166,11 @@ async function signup(){
 
 /* LOGIN */
 async function login(){
+
+  if(!client){
+    alert("Database not ready");
+    return;
+  }
 
   let mobile = document.getElementById("mobile").value.trim();
   let password = document.getElementById("password").value;
